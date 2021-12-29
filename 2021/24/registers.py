@@ -7,6 +7,11 @@ class Registers:
         self.reg = {reg_names[index]: 0 for index in range(len(reg_names))}
         self.inputs: List[int] = []
 
+    def reset(self):
+        for reg in self.reg:
+            self.reg[reg] = 0
+        self.inputs = []
+
     def get(self, reg_name: str):
         assert reg_name in self.reg
         return self.reg[reg_name]
@@ -19,6 +24,7 @@ class Registers:
         if self.inputs:
             return self.inputs.pop(0)
         else:
+            raise Exception("out of inputs")
             print("no inputs left, enter manually")
             return int(input("> "))
 
