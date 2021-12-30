@@ -18,7 +18,16 @@ class Burrow1:
                 for x in range(4):
                     self._grid[y + 1][x * 2 + 2] = amphipods[y][x]
         self._energy = 0
-        self._finished = False
+        self.finished = False
+
+    def __hash__(self) -> int:
+        str_hash = ""
+        for y in range(self._h):
+            for x in range(self._w):
+                pos = self._grid[y][x]
+                str_hash += pos if pos else "."
+        str_hash += str(self._energy)
+        return hash(str_hash)
 
     def copy(self):
         # create new empty instance
@@ -125,5 +134,5 @@ class Burrow1:
             for amphipod in self._amphipods:
                 if new_burrow._grid[y][self._room_x[amphipod]] != amphipod:
                     return [new_burrow]
-        new_burrow._finished = True
+        new_burrow.finished = True
         return [new_burrow]

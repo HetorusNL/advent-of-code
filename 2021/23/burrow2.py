@@ -18,7 +18,16 @@ class Burrow2:
                 for x in range(4):
                     self._grid[y + 1][x * 2 + 2] = amphipods[y][x]
         self._energy = 0
-        self._finished = False
+        self.finished = False
+
+    def __hash__(self) -> int:
+        str_hash = ""
+        for y in range(self._h):
+            for x in range(self._w):
+                pos = self._grid[y][x]
+                str_hash += pos if pos else "."
+        str_hash += str(self._energy)
+        return hash(str_hash)
 
     def copy(self):
         # create new empty instance
@@ -76,21 +85,15 @@ class Burrow2:
 
     def _handle_room_amphipod(self, y, x):
         # handle the case that there's a amphipod above
-        for _y in range(4, 3, 2):
-            if y == _y - 1 and self._grid[_y][x] in self._amphipods:
-                return []
+        if self._grid[y - 1][x] in self._amphipods:
+            return []
 
         # handle the case that amphipods are already in the currect room
-        for _y in [4, 3, 2, 1]:
-            if self._room_x.get(self._grid[_y][x]) == x:
-                if y == _y:
-                    return []
-
-        if y == 2 and self._room_x.get(self._grid[y][x]) == x:
+        for _y in range(y, 5):
+            if self._room_x.get(self._grid[_y][x]) != x:
+                break
+        else:
             return []
-        if y == 1 and self._room_x.get(self._grid[2][x]) == x:
-            if self._room_x.get(self._grid[y][x]) == x:
-                return []
 
         new_burrows = []
         # check every hallway position where the room amphipod can move to
@@ -117,11 +120,11 @@ class Burrow2:
         new_burrow._grid[new_y][new_x] = new_burrow._grid[old_y][old_x]
         new_burrow._grid[old_y][old_x] = ""
         new_burrow._energy += energy_per_step * steps
-        if new_burrow._energy > 50000:
-            return []
+        # if new_burrow._energy > 50000:
+        #     return []
         for y in [1, 2, 3, 4]:
             for amphipod in self._amphipods:
                 if new_burrow._grid[y][self._room_x[amphipod]] != amphipod:
                     return [new_burrow]
-        new_burrow._finished = True
+        new_burrow.finished = True
         return [new_burrow]
