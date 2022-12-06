@@ -1,14 +1,20 @@
 from pathlib import Path
 
+from solution.communication_system import CommunicationSystem
+
 
 class Part1:
     def __init__(self, file: Path):
         with open(file) as f:
-            self.lines = [line.strip() for line in f.readlines()]
+            lines = [line.strip() for line in f.readlines()]
+            assert len(lines) == 1, f"invalid input for this puzzle!"
+            self.line = lines[0]
 
     def solve(self) -> None:
         print("solving...")
+        cs = CommunicationSystem()
+        cs.add_datastream(self.line)
+        self.start_of_packet_marker = cs.get_start_of_packet_marker()
 
     def get_result(self) -> str:
-        result = 42
-        return f"the result of part 1 is: {result}"
+        return f"the start of packet marker is found at offset: {self.start_of_packet_marker}"
