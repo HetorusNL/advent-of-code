@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from solution.grid import Grid
+
 
 class Part1:
     def __init__(self, file: Path):
@@ -8,7 +10,8 @@ class Part1:
 
     def solve(self) -> None:
         print("solving...")
+        grid = Grid(self.lines)
+        self.viewable_trees = grid.get_viewable_trees()
 
     def get_result(self) -> str:
-        result = 42
-        return f"the result of part 1 is: {result}"
+        return f"the number of viewable trees in the grid is: {self.viewable_trees}"
