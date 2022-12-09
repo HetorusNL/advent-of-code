@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from solution.playfield import Playfield
+
 
 class Part2:
     def __init__(self, file: Path):
@@ -8,7 +10,12 @@ class Part2:
 
     def solve(self) -> None:
         print("solving...")
+        self.length = 10
+        playfield = Playfield(self.length)
+        playfield.simulate(self.lines)
+        self.num_visited_tail_positions = playfield.get_num_visited_tail_positions()
 
     def get_result(self) -> str:
-        result = 42
-        return f"the result of part 2 is: {result}"
+        result = f"the tail of the rope (length {self.length}) visited this num of positions: "
+        result += f"{self.num_visited_tail_positions}"
+        return result
