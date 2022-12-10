@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from solution.cpu import CPU
+
 
 class Part1:
     def __init__(self, file: Path):
@@ -8,7 +10,9 @@ class Part1:
 
     def solve(self) -> None:
         print("solving...")
+        cpu = CPU()
+        cpu.run_instructions(self.lines)
+        self.signal_strength = cpu.signal_strength
 
     def get_result(self) -> str:
-        result = 42
-        return f"the result of part 1 is: {result}"
+        return f"the signal strength is: {self.signal_strength}"

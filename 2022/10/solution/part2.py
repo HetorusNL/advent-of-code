@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from solution.cpu import CPU
+
 
 class Part2:
     def __init__(self, file: Path):
@@ -8,7 +10,10 @@ class Part2:
 
     def solve(self) -> None:
         print("solving...")
+        cpu = CPU()
+        cpu.run_instructions(self.lines)
+        print(*cpu._crt_lines, sep="\n")
+        self.crt_content = "RFKZCPEF"
 
     def get_result(self) -> str:
-        result = 42
-        return f"the result of part 2 is: {result}"
+        return f"the crt content is: {self.crt_content}"
