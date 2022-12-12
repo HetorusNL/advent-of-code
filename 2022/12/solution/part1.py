@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from solution.grid import Grid
+
 
 class Part1:
     def __init__(self, file: Path):
@@ -8,7 +10,8 @@ class Part1:
 
     def solve(self) -> None:
         print("solving...")
+        grid = Grid(self.lines)
+        self.num_steps_till_end = grid.num_steps_till_end()
 
     def get_result(self) -> str:
-        result = 42
-        return f"the result of part 1 is: {result}"
+        return f"the number of steps from start till end: {self.num_steps_till_end}"
