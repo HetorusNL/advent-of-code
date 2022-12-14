@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from solution.grid import Grid
+
 
 class Part1:
     def __init__(self, file: Path):
@@ -8,7 +10,9 @@ class Part1:
 
     def solve(self) -> None:
         print("solving...")
+        grid = Grid(self.lines)
+        grid.do_sand_part_1()
+        self.num_sand_units = grid.get_num_sand_units()
 
     def get_result(self) -> str:
-        result = 42
-        return f"the result of part 1 is: {result}"
+        return f"the number of fallen sand units of part 1 is: {self.num_sand_units}"
