@@ -13,6 +13,7 @@ class Chamber:
         self._rock_offset: int = 4  # 3 spacing thus 1 higher = 4
         self._most_left_pos: int = 0
         self._most_right_pos: int = 6
+        self._optimize_depth: int = 1000
 
     def fall_rock(self) -> Rock:
         rock: Rock = self._rocks.get_rock()
@@ -57,6 +58,14 @@ class Chamber:
             # if all checks above succeeded, move down
             rock.move_down()
 
+    def optimize(self) -> None:
+        keys = self._grid.keys()
+        new_keys = [key for key in keys if key > self.tower_height - self._optimize_depth]
+        new_grid: dict[int, dict[int, bool]] = {}
+        for key in new_keys:
+            new_grid[key] = self._grid[key]
+        self._grid = new_grid
+
     @property
     def num_different_rocks(self) -> int:
         return self._rocks.num_different_rocks
@@ -70,6 +79,8 @@ class Chamber:
         return bool(self._grid.get(y, {}).get(x))
 
     def _add_rock_to_grid(self, rock: Rock) -> None:
+        if self.tower_height > self._optimize_depth + 10:
+            assert rock.rock_pos[0][1] > 10
         for pos in rock.rock_pos:
             if pos[1] not in self._grid:
                 self._grid[pos[1]] = {}
