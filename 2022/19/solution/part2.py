@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from solution.robot_factory import RobotFactory
+
 
 class Part2:
     def __init__(self, file: Path):
@@ -8,7 +10,8 @@ class Part2:
 
     def solve(self) -> None:
         print("solving...")
+        robot_factory = RobotFactory(self.lines[:3])
+        self.multiplied_geodes = robot_factory.run_for_minutes_part_2(32)
 
     def get_result(self) -> str:
-        result = 42
-        return f"the result of part 2 is: {result}"
+        return f"the quality level of all the blueprints is: {self.multiplied_geodes}"
