@@ -9,6 +9,7 @@ packages = [{include = "advent_of_code"}]
 [tool.poetry.dependencies]
 python = "^3.11"
 black = "^22.10.0"
+snakeviz = "^2.1.1"
 
 [tool.black]
 line-length = 119
