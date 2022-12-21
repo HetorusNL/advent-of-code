@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from solution.sequence import Sequence
+
 
 class Part2:
     def __init__(self, file: Path):
@@ -8,7 +10,9 @@ class Part2:
 
     def solve(self) -> None:
         print("solving...")
+        sequence = Sequence(self.lines)
+        sequence.decrypted_mixing()
+        self.decrypted_grove_coordinates = sequence.get_grove_coordinates()
 
     def get_result(self) -> str:
-        result = 42
-        return f"the result of part 2 is: {result}"
+        return f"the decrypted grove coordinates are: {self.decrypted_grove_coordinates}"
