@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from solution.grid import Grid
+
 
 class Part1:
     def __init__(self, file: Path):
@@ -8,7 +10,10 @@ class Part1:
 
     def solve(self) -> None:
         print("solving...")
+        grid = Grid(self.lines)
+        for _ in range(10):
+            grid.do_round()
+        self.num_elves = grid.num_elves()
 
     def get_result(self) -> str:
-        result = 42
-        return f"the result of part 1 is: {result}"
+        return f"rectangle containing all elves, contains num empty ground tiles: {self.num_elves}"

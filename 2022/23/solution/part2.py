@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from solution.grid import Grid
+
 
 class Part2:
     def __init__(self, file: Path):
@@ -8,7 +10,10 @@ class Part2:
 
     def solve(self) -> None:
         print("solving...")
+        grid = Grid(self.lines)
+        self.num_rounds = 1
+        while grid.do_round():
+            self.num_rounds += 1
 
     def get_result(self) -> str:
-        result = 42
-        return f"the result of part 2 is: {result}"
+        return f"the round number where no elf moves is: {self.num_rounds}"
