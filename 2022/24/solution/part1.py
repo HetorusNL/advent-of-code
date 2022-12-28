@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from solution.grid import Grid
+
 
 class Part1:
     def __init__(self, file: Path):
@@ -8,7 +10,13 @@ class Part1:
 
     def solve(self) -> None:
         print("solving...")
+        grid = Grid(self.lines)
+        iteration = 0
+        while iteration := iteration + 1:
+            grid.update()
+            if grid.goal_reached():
+                self.iterations = iteration
+                break
 
     def get_result(self) -> str:
-        result = 42
-        return f"the result of part 1 is: {result}"
+        return f"goal reached after iterations: {self.iterations}"
