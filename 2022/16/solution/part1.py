@@ -11,8 +11,9 @@ class Part1:
     def solve(self) -> None:
         print("solving...")
         volcano = Volcano(self.lines)
-        self.pressure_released = 0
-        # self.pressure_released = volcano.run_for_minutes(30)
+        minutes = 30
+        volcano.run_for_minutes(minutes)
+        self.pressure_released = volcano.max_pressure_released_for_minute(minutes)
 
     def get_result(self) -> str:
         return f"the maximum amount of pressure released is: {self.pressure_released}"

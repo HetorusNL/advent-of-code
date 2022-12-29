@@ -1,5 +1,7 @@
 import re
 
+from solution.tunnel import Tunnel
+
 
 class Valve:
     def __init__(self, line: str):
@@ -11,8 +13,8 @@ class Valve:
         # store the values in the class
         self._name: str = match["name"]
         self._flow_rate: int = int(match["flow_rate"])
-        self._tunnel_names: list[str] = [tunnel.strip() for tunnel in match["tunnels"].split(",")]
-        self._tunnels: list["Valve"] = []
+        self._original_tunnel_names: list[str] = [tunnel.strip() for tunnel in match["tunnels"].split(",")]
+        self._tunnels: list[Tunnel] = []
 
     @property
     def name(self) -> str:
@@ -23,12 +25,27 @@ class Valve:
         return self._flow_rate
 
     @property
-    def tunnel_names(self) -> list[str]:
-        return self._tunnel_names
+    def original_tunnel_names(self) -> list[str]:
+        return self._original_tunnel_names
 
     @property
-    def tunnels(self) -> list["Valve"]:
+    def tunnel_names(self) -> list[str]:
+        return [tunnel.valve.name for tunnel in self._tunnels]
+
+    @property
+    def tunnels(self) -> list[Tunnel]:
         return self._tunnels
 
-    def add_tunnel(self, tunnel: "Valve") -> None:
+    def tunnel(self, name: str) -> Tunnel:
+        tunnels = [tunnel for tunnel in self.tunnels if tunnel.valve.name == name]
+        assert len(tunnels) == 1
+        return tunnels[0]
+
+    def add_tunnel(self, tunnel: Tunnel) -> None:
         self._tunnels.append(tunnel)
+
+    def remove_tunnel(self, valve_name: str) -> None:
+        self._tunnels = [tunnel for tunnel in self._tunnels if tunnel.valve.name != valve_name]
+
+    def __lt__(self, other: "Valve"):
+        return self.name < other.name
