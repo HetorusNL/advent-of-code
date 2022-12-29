@@ -10,5 +10,4 @@ class Part2:
         print("solving...")
 
     def get_result(self) -> str:
-        result = 42
-        return f"the result of part 2 is: {result}"
+        return f"there is no result of part 2..."

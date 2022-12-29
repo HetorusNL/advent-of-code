@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from solution.snafu import SNAFU
+
 
 class Part1:
     def __init__(self, file: Path):
@@ -8,7 +10,8 @@ class Part1:
 
     def solve(self) -> None:
         print("solving...")
+        fuel_sum = sum(SNAFU.from_snafu(line) for line in self.lines)
+        self.snafu_sum = SNAFU.to_snafu(fuel_sum)
 
     def get_result(self) -> str:
-        result = 42
-        return f"the result of part 1 is: {result}"
+        return f"the SNAFU number to enter in Bob's console is: {self.snafu_sum}"
