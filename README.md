@@ -1,15 +1,13 @@
 # Advent of Code
 
-## Editions included
-
-- 2019
-- 2021
-- 2022
-
-## Editions still open
+## Editions
 
 - 2015
 - 2016
 - 2017
 - 2018
+- 2019 [partial]
 - 2020
+- 2021 [completed]
+- 2022 [completed]
+- 2023 [partial]
