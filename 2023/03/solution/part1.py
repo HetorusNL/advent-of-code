@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from solution.grid import Grid
+
 
 class Part1:
     def __init__(self, file: Path):
@@ -8,7 +10,9 @@ class Part1:
 
     def solve(self) -> None:
         print("solving...")
+        grid = Grid(self.lines)
+        numbers = grid.numbers_adjecent_to_symbols()
+        self.result = sum(numbers)
 
     def get_result(self) -> str:
-        result = 42
-        return f"the result of part 1 is: {result}"
+        return f"the result of part 1 is: {self.result}"
