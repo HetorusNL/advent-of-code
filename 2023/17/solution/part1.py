@@ -8,7 +8,7 @@ class Part1:
 
     def solve(self) -> None:
         print("solving...")
+        self.result = 42
 
     def get_result(self) -> str:
-        result = 42
-        return f"the result of part 1 is: {result}"
+        return f"the result of part 1 is: {self.result}"
