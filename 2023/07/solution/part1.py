@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from solution.hand1 import Hand1
+
 
 class Part1:
     def __init__(self, file: Path):
@@ -8,7 +10,14 @@ class Part1:
 
     def solve(self) -> None:
         print("solving...")
-        self.result = 42
+        hands: list[Hand1] = []
+        for line in self.lines:
+            cards, bid = line.split(" ")
+            hands.append(Hand1(cards, bid))
+        hands = sorted(hands)
+        self.result = 0
+        for hand_idx, hand in enumerate(hands):
+            self.result += hand.bid * (hand_idx + 1)
 
     def get_result(self) -> str:
         return f"the result of part 1 is: {self.result}"
