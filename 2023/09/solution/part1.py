@@ -1,14 +1,11 @@
 from pathlib import Path
 
+from solution.common import Common
 
-class Part1:
+
+class Part1(Common):
     def __init__(self, file: Path):
-        with open(file) as f:
-            self.lines = [line.strip() for line in f.readlines()]
-
-    def solve(self) -> None:
-        print("solving...")
-        self.result = 42
+        Common.__init__(self, file)
 
     def get_result(self) -> str:
         return f"the result of part 1 is: {self.result}"
