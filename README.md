@@ -10,4 +10,4 @@
 - 2020
 - 2021 [completed]
 - 2022 [completed]
-- 2023 [partial]
+- 2023 [completed]
