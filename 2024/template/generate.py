@@ -17,7 +17,7 @@ def main():
         # check if the directory already exists
         if day_folder.is_dir():
             # check if it contains input files
-            input_files = list(filter(lambda file: file.name.endswith(".txt"), (day_folder / "input_files").iterdir()))
+            input_files = list(filter(lambda file: file.name != ".keep", (day_folder / "input_files").iterdir()))
             if len(input_files) != 0:
                 # skip this day, as it already has input files, thus we assume modifications/solutions
                 continue

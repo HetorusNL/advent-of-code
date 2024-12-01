@@ -10,7 +10,7 @@ class Solver:
         this_folder: Path = Path(__file__).parent
         input_files_folder: Path = (this_folder / ".." / "input_files").resolve()
         # check whether we have 1 or 2 input files (e.g. reuse or different input for the two parts)
-        input_files: list[Path] = list(filter(lambda file: file.name.endswith(".txt"), input_files_folder.iterdir()))
+        input_files: list[Path] = list(filter(lambda file: file.name != ".keep", input_files_folder.iterdir()))
         assert len(input_files) in [1, 2], f"found {len(input_files)} input files, we only support 1 or 2!"
         if len(input_files) == 1:
             self.part1: Part1 = Part1(input_files[0])
