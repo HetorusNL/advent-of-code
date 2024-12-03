@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Callable
 
 
 class Part2:
@@ -6,7 +7,7 @@ class Part2:
         with open(file) as f:
             self.lines = [line.strip() for line in f.readlines()]
 
-    def check_single(self, previous: int, values: list[int], func):
+    def check_single(self, previous: int, values: list[int], func: Callable[[int, int], int]):
         for value in values:
             if func(value, previous) in [1, 2, 3]:
                 previous = value
@@ -19,11 +20,11 @@ class Part2:
     def check_values(self, values: list[int]):
         previous = values.pop(0)
         # test if the sequence is increasing
-        func = lambda left, right: left - right
+        func: Callable[[int, int], int] = lambda left, right: left - right
         if self.check_single(previous, values, func):
             return True
         # test if the sequence is decreasing
-        func = lambda left, right: right - left
+        func: Callable[[int, int], int] = lambda left, right: right - left
         if self.check_single(previous, values, func):
             return True
         # otherwise the sequence is neither

@@ -8,8 +8,8 @@ class Part2:
 
     def solve(self) -> None:
         print("solving...")
-        left = []
-        right = []
+        left: list[int] = []
+        right: list[int] = []
         for entry in self.lines:
             values = entry.split(" ")
             left.append(int(values[0]))

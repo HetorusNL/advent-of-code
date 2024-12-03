@@ -5,8 +5,7 @@
     }
   ],
   "settings": {
-    "python.analysis.typeCheckingMode": "basic",
-    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "python.analysis.typeCheckingMode": "strict",
     "editor.formatOnSave": true
   }
 }
