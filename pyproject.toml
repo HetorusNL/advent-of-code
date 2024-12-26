@@ -2,12 +2,12 @@
 name = "advent-of-code"
 version = "0.1.0"
 description = ""
-authors = ["Hetorus NL <timkleinnijenhuis@hotmail.com>"]
+authors = ["Tim Klein Nijenhuis <tim@hetorus.nl>"]
 readme = "README.md"
 packages = []
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11"
 black = "^24.10.0"
 snakeviz = "^2.2.2"
 
