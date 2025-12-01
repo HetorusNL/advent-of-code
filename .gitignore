@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 .venv/
 profiler.prof
+
+# ignore the TAPL compiler subfolder :)
+tapl/

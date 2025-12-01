@@ -1,19 +1,20 @@
-[tool.poetry]
+[project]
 name = "advent-of-code"
 version = "0.1.0"
-description = ""
+description = "Advent of Code repository"
 authors = ["Tim Klein Nijenhuis <tim@hetorus.nl>"]
+license = "MIT"
 readme = "README.md"
-packages = []
-
-[tool.poetry.dependencies]
-python = ">=3.11"
-black = "^24.10.0"
-snakeviz = "^2.2.2"
+requires-python = ">=3.14"
+dependencies = [
+    "snakeviz>=2.2.2",
+]
 
 [tool.black]
-line-length = 119
+line-length = 120
 
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[dependency-groups]
+dev = [
+    "pytest>=8.4.0",
+    "pytest-watch>=4.2.0",
+]

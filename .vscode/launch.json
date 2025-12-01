@@ -6,17 +6,49 @@
   "configurations": [
     {
       "name": "Python: Current File with profiler",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "module": "cProfile",
       "args": ["-o", "profiler.prof", "${file}"]
     },
     {
       "name": "Python: Current File",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "${file}",
       "console": "integratedTerminal"
+    },
+    {
+      "name": "TAPL Compiler Debugger: Current File",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "tapl.src.compilers.compyler",
+      "console": "integratedTerminal",
+      "args": ["${file}"]
+    },
+    {
+      "name": "TAPL Compiler: Debug C Program",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/tapl/build/compyler/main",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Set Disassembly Flavor to Intel",
+          "text": "-gdb-set disassembly-flavor intel",
+          "ignoreFailures": true
+        }
+      ]
     }
   ]
 }
