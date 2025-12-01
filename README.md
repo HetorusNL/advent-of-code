@@ -24,7 +24,7 @@ For now, the following should be performed to compile and run these years:
 git clone git@github.com:HetorusNL/tapl.git
 
 # run the days like follows
-uv run -m tapl.src.compilers.compyler [year]/[day]/main.tim
+uv run -m tapl.src.compilers.compyler [year]/[day]/part[x].tim
 # e.g.
-uv run -m tapl.src.compilers.compyler 2025/01/main.tim
+uv run -m tapl.src.compilers.compyler 2025/01/part1.tim
 ```

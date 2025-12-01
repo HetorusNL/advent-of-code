@@ -1,0 +1,8 @@
+// read the input file into the buffer
+list[char] buffer
+read_file("2025/01/input_files/input", buffer)
+
+// print the content to console
+println("stuff in the input file (size: {buffer.size()})")
+for u64 index = 0; index < buffer.size(); index++:
+    print(buffer.get(index))
