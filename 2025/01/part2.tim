@@ -1,0 +1,82 @@
+// read the input file into the buffer
+list[char] buffer
+read_file("2025/01/input_files/input", buffer)
+//read_file("2025/01/input_files/test1", buffer)
+
+// print the content to console
+println("stuff in the input file (size: {buffer.size()})")
+//for u64 index = 0; index < buffer.size(); index++:
+//    print(buffer.get(index))
+
+// convert the list from chars to two lists with rotation and value
+list[char] rotations
+list[u16] values
+u64 index = 0
+while index < buffer.size():
+    // first a rotation
+    rotations.add(buffer.get(index))  // TODO: with this 'rotation', internal compiler error
+    index++
+    // then a value
+    u16 value = 0
+    // TODO: &&, make char and base/u16 be used together
+    while (u16)((buffer.get(index) >= '0') + (buffer.get(index) <= '9')) == 2:
+        value = value * 10  // TODO: *=
+        value = value + (u16)(buffer.get(index) - '0')  // TODO: +=
+        // TODO: line numbers off by one
+        index++
+    values.add(value)
+    // skip the newline
+    index++
+
+println("there are {rotations.size()} rotations in the input")
+//for u64 index = 0; index < rotations.size(); index++:
+//    print(rotations.get(index))
+//    println(values.get(index))
+
+// perform the rotations
+s32 value = 50
+u16 zero_rotations = 0
+for u64 index = 0; index < rotations.size(); index++:
+    s32 start_value = value
+    // get the rotation value
+    s32 rotation_value = 0
+    if rotations.get(index) == 'L':
+        rotation_value = (s32)values.get(index)
+    else:  // 'R'
+        rotation_value = (s32)values.get(index)
+
+    // limit rotation value to +/-100 (this is also a rotation through zero)
+    while rotation_value < -99:
+        //println("rotation_value = {rotation_value}, < 100")
+        rotation_value = rotation_value + 100
+        zero_rotations = zero_rotations + 1
+    while rotation_value > 99:
+        //println("rotation_value = {rotation_value}, > 100")
+        rotation_value = rotation_value - 100
+        zero_rotations = zero_rotations + 1
+
+    // apply the rotation
+    // add the value
+    if rotations.get(index) == 'L':
+        value = value - rotation_value
+    else:  // 'R'
+        value = value + rotation_value
+
+    // perform modulo 100 (this is also a rotation through zero)
+    if value < 0:
+        //println("value = {value}, < 100")
+        value = value + 100
+        // don't count from 0 to minus something small a zero_rotations
+        if start_value != 0:
+            zero_rotations = zero_rotations + 1
+    else if value > 99:
+        //println("value = {value}, > 100")
+        value = value - 100
+        zero_rotations = zero_rotations + 1
+    else if value == 0:
+        zero_rotations = zero_rotations + 1
+    
+    //println("value after {index} ({values.get(index)}) = {value}, zero_rotations: {zero_rotations}")
+    
+// print the result
+println("the number of rotations that end in zero are: {zero_rotations}")
