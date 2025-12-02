@@ -1,0 +1,103 @@
+// read the input file into the buffer
+list[char] buffer
+read_file("2025/02/input_files/input", buffer)
+//read_file("2025/02/input_files/test1", buffer)
+
+// print the content to console
+println("stuff in the input file (size: {buffer.size()})")
+for u64 index = 0; index < buffer.size(); index++:
+    print(buffer.get(index))
+
+// store the numbers in several lists, min/max
+list[u64] min
+list[u64] max
+u64 value = 0
+for u64 index = 0; index < buffer.size(); index++:
+    // get the character and process accordingly
+    char c = buffer.get(index)
+    if c == '-':
+        min.add(value)
+        value = 0
+    else if c == ',':
+        max.add(value)
+        value = 0
+    else if c == (char)0xa:  // TODO: '\n'
+        value = value
+    else:
+        value = value * 10
+        value = value + (u64)(c - '0')
+// also add the last one
+max.add(value)
+value = 0
+
+println("length of min: {min.size()} and max: {max.size()}")
+
+// print the values for reference
+for u64 index = 0; index < min.size(); index++:
+    print("{min.get(index)}-{max.get(index)},")
+println("")
+
+u8 num_decimals(u64 value):
+    u8 decimals = 0
+    while value > 0:
+        decimals = decimals + 1
+        value = value / 10
+    return decimals
+
+bool even(u8 value):
+    return (u1)(value == value / 2 * 2)
+
+u64 duplicate(u64 value):
+    u8 decimals = num_decimals(value)
+    u64 retval = value
+    for u8 dec = 0; dec < decimals; dec++:
+        retval = retval * 10
+    retval = retval + value
+    return retval
+
+list[u64] results
+// loop through all values in the list
+for u64 index = 0; index < min.size(); index++:
+    // get the number of decimals
+    u8 min_decimals = num_decimals(min.get(index))
+    u8 max_decimals = num_decimals(max.get(index))
+    u8 lowest_decimals
+    u8 highest_decimals
+    if min_decimals <= max_decimals:
+        lowest_decimals = min_decimals
+        highest_decimals = max_decimals
+    else:
+        lowest_decimals = max_decimals
+        highest_decimals = min_decimals
+    bool is_even = even(min_decimals) || even(max_decimals)
+    println("{min_decimals},{max_decimals}, even: {is_even}, low: {lowest_decimals}, high: {highest_decimals}")
+    
+    // skip processing value when both decimals are even
+    // TODO: add break/continue
+    if is_even:
+        // get the half value
+        u64 min_value = min.get(index)
+        u64 max_value = max.get(index)
+        u64 start_value = min_value
+        for u8 dec = 0; dec < highest_decimals/2; dec++:
+            start_value = start_value / 10
+        println("{min_value} - {max_value}, {start_value}")
+
+        // continuously test values until we're outside of the max value
+        print("results: ")
+        bool run = true
+        for u64 half_value = start_value; run; half_value++:
+            value = duplicate(half_value)
+            if value <= max_value:
+                if value >= min_value:
+                    results.add(value)
+                    print("{value},")
+            else:
+                run = false
+        println("")
+
+println("solution size: {results.size()}")
+u64 result = 0
+for u64 index = 0; index < results.size(); index++:
+    result = result + results.get(index)
+println("result: {result}")
