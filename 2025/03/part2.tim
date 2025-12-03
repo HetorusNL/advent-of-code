@@ -51,4 +51,4 @@ for u8 row = 0; row < rows; row++:
 
     total_joltage = total_joltage + (u64)row_max_joltage
     println(row_max_joltage)
-println("total joltage: {total_joltage}")
+println("[solution] total joltage: {total_joltage}")

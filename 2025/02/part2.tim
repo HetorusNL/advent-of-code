@@ -145,4 +145,4 @@ println("solution size: {results.size()}")
 u64 result = 0
 for u64 index = 0; index < results.size(); index++:
     result = result + results.get(index)
-println("result: {result}")
+println("[solution] result: {result}")

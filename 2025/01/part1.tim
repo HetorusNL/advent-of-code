@@ -55,4 +55,4 @@ for u64 index = 0; index < rotations.size(); index++:
         zero_rotations = zero_rotations + 1
     
 // print the result
-println("the number of rotations that end in zero are: {zero_rotations}")
+println("[solution] the number of rotations that end in zero are: {zero_rotations}")
