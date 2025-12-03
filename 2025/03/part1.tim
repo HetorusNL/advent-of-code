@@ -1,0 +1,46 @@
+// read the input file into the buffer
+list[char] buffer
+read_file("2025/03/input_files/input", buffer)
+//read_file("2025/03/input_files/test1", buffer)
+
+// print the content to console
+println("stuff in the input file (size: {buffer.size()})")
+for u64 index = 0; index < buffer.size(); index++:
+    print(buffer.get(index))
+
+// count the rows and columns, and create a list of values without newline
+u8 rows = 0
+u8 cols = 0
+bool run = true
+for u64 index = 0; run; index++:
+    if buffer.get(index) == (char)0xa:  // '\n'
+        run = false
+        cols = (u8)(index)
+        rows = (u8)(buffer.size() / (index+1))
+list[u8] batteries
+for u8 row = 0; row < rows; row++:
+    for u8 col = 0; col < cols; col++:
+        batteries.add(buffer.get(row*(cols+1)+col) - '0')
+println("rows: {rows}, cols: {cols}")
+
+// print the input
+for u8 row = 0; row < rows; row++:
+    for u8 col = 0; col < cols; col++:
+        print(batteries.get(row*cols + col))
+    println("")
+
+// loop through the battery banks
+u32 total_joltage = 0
+for u8 row = 0; row < rows; row++:
+    u8 row_max_joltage = 0
+    bool run1 = true
+    for u8 col1 = 0; col1 < cols-1; col1++:
+        u8 first_joltage = batteries.get(row*cols + col1)*10
+        if first_joltage + 9 > row_max_joltage:
+            for u8 col2 = col1+1; col2 < cols; col2++:
+                u8 this_joltage = batteries.get(row*cols + col2)
+                if first_joltage + this_joltage > row_max_joltage:
+                    row_max_joltage = first_joltage + this_joltage
+    total_joltage = total_joltage + (u32)row_max_joltage
+    println(row_max_joltage)
+println("total joltage: {total_joltage}")
