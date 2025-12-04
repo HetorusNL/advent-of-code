@@ -1,0 +1,137 @@
+// read the input file into the buffer
+list[char] buffer
+read_file("2025/04/input_files/input", buffer)
+//read_file("2025/04/input_files/test1", buffer)
+
+// print the content to console
+println("stuff in the input file (size: {buffer.size()})")
+for u64 index = 0; index < buffer.size(); index++:
+    print(buffer.get(index))
+
+// count the rows and columns, and create a list of values without newline
+s16 rows = 0
+s16 cols = 0
+bool run = true
+for u64 index = 0; run; index++:
+    if buffer.get(index) == (char)0xa:  // '\n'
+        run = false
+        cols = (s16)(index)
+        rows = (s16)(buffer.size() / (index+1))
+list[u8] rolls
+for s16 row = 0; row < rows; row++:
+    for s16 col = 0; col < cols; col++:
+        rolls.add(buffer.get(row*(cols+1)+col) == '@')
+println("rows: {rows}, cols: {cols}")
+
+// print the input
+for s16 row = 0; row < rows; row++:
+    for s16 col = 0; col < cols; col++:
+        print(rolls.get(row * cols + col))
+    println("")
+
+// loop through the rolls to see which are accessible
+u32 accessible_rolls = 0
+bool rolls_removed = true
+while rolls_removed:
+    rolls_removed = false
+    for s16 row = 0; row < rows; row++:
+        for s16 col = 0; col < cols; col++:
+            // only check if there is actually a roll here
+            if rolls.get(row * cols + col):
+                s16 num_rolls = 0
+                // check all 8 adjecent positions if there is a roll there
+                s16 r
+                s16 c
+
+                // check left top
+                r = row - 1
+                c = col - 1
+                if r < 0 || r >= rows || c < 0 || c >= rows:
+                    // outside means no roll there
+                else:
+                    // check if there is a roll there
+                    if (u8)rolls.get(r * cols + c):
+                        num_rolls = num_rolls + 1
+
+                // check top
+                r = row - 1
+                c = col
+                if r < 0 || r >= rows || c < 0 || c >= rows:
+                    // outside means no roll there
+                else:
+                    // check if there is a roll there
+                    if (u8)rolls.get(r * cols + c):
+                        num_rolls = num_rolls + 1
+
+                // check top right
+                r = row - 1
+                c = col + 1
+                if r < 0 || r >= rows || c < 0 || c >= rows:
+                    // outside means no roll there
+                else:
+                    // check if there is a roll there
+                    if (u8)rolls.get(r * cols + c):
+                        num_rolls = num_rolls + 1
+
+                // check left
+                r = row
+                c = col - 1
+                if r < 0 || r >= rows || c < 0 || c >= rows:
+                    // outside means no roll there
+                else:
+                    // check if there is a roll there
+                    if (u8)rolls.get(r * cols + c):
+                        num_rolls = num_rolls + 1
+
+                // check right
+                r = row
+                c = col + 1
+                if r < 0 || r >= rows || c < 0 || c >= rows:
+                    // outside means no roll there
+                else:
+                    // check if there is a roll there
+                    if (u8)rolls.get(r * cols + c):
+                        num_rolls = num_rolls + 1
+
+                // check left bottom
+                r = row + 1
+                c = col - 1
+                if r < 0 || r >= rows || c < 0 || c >= rows:
+                    // outside means no roll there
+                else:
+                    // check if there is a roll there
+                    if (u8)rolls.get(r * cols + c):
+                        num_rolls = num_rolls + 1
+
+                // check bottom
+                r = row + 1
+                c = col
+                if r < 0 || r >= rows || c < 0 || c >= rows:
+                    // outside means no roll there
+                else:
+                    // check if there is a roll there
+                    if (u8)rolls.get(r * cols + c):
+                        num_rolls = num_rolls + 1
+
+                // check bottom
+                r = row + 1
+                c = col + 1
+                if r < 0 || r >= rows || c < 0 || c >= rows:
+                    // outside means no roll there
+                else:
+                    // check if there is a roll there
+                    if (u8)rolls.get(r * cols + c):
+                        num_rolls = num_rolls + 1
+
+                // check how many rolls we have
+                if num_rolls < 4:
+                    accessible_rolls = accessible_rolls + 1
+                    // TODO: when this is the last line, and closing '"' is missing, results in Python IndexError
+                    println("we can access the roll at {row}, {col} -> {accessible_rolls}")
+                    //rolls.set(row * cols + col, 0)  // TODO: implement
+                    u64 index = (u64)(row * cols + col)
+                    rolls.del(index)
+                    rolls.insert(index, 0)
+                    rolls_removed = 1
+
+println("[solution] accessible rolls: {accessible_rolls}")
