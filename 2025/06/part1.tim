@@ -1,0 +1,88 @@
+// read the input file into the buffer
+list[char] buffer
+read_file("2025/06/input_files/input", buffer)
+//read_file("2025/06/input_files/test1", buffer)
+
+// print the content to console
+println("stuff in the input file (size: {buffer.size()})")
+//for u64 index = 0; index < buffer.size(); index++:
+//    print(buffer.get(index))
+
+bool ignore_char(char c):
+    return (bool)(c == ' ' || c == (char)0xa)
+
+bool is_operator(char c):
+    return (bool)(c == '*' || c == '+')  // '\n'  # TODO: fix that this returns bool
+
+u64 get_int(char c):
+    return (u64)(c - '0')
+
+// parse the input to a long list of numbers and operators
+list[u64] values
+list[char] operators
+u64 value = 0
+// first continuously parse numbers, until we get to an operator
+for u64 index = 0; index < buffer.size(); index++:
+    char c = buffer.get(index)
+    // if it's a space or newline, ignore
+    if ignore_char(c):
+        // if we have a number, add to the list and clear
+        if value:
+            values.add(value)
+            value = 0
+    else if is_operator(c):
+        // add the operator to the operators
+        operators.add(c)
+    else:
+        // it's a value, add the value digit
+        value = value * 10
+        value = value + get_int(c)
+
+u64 num_operations = operators.size()
+u64 values_per_operation = values.size() / num_operations
+
+// print the parsed input
+//for u64 index = 0; index < values.size(); index++:
+//    print("{values.get(index)} ")
+//println("")
+//for u64 index = 0; index < num_operations; index++:
+//    print("{operators.get(index)} ")
+//println("")
+println("num values: {values.size()}, num operators: {num_operations}, values_per_operation: {values_per_operation}")
+
+// perform the operations
+list[u64] results
+// loop through all operations
+for u64 index = 0; index < num_operations; index++:
+    // create a single result with a default value
+    u64 result = 0
+    if operators.get(index) == '*':
+        result = 1  // for multiplication we need a start value of 1
+
+    // extract the operation from the buffer
+    char operation = operators.get(index)
+
+    // loop through all values per operator
+    for u64 num_value = 0; num_value < values_per_operation; num_value++:
+        // calculate the index of the value
+        u64 value_index = num_value * num_operations + index
+
+        // perform the operation
+        u64 value = values.get(value_index)
+        if operation == '+':
+            result = result + value
+        else:  // '*'
+            result = result * value
+
+    // add the result
+    results.add(result)
+
+// calculate and print the results
+u64 result = 0
+for u64 index = 0; index < results.size(); index++:
+    u64 single_result = results.get(index)
+    result = result + single_result
+    //print("{single_result} ")
+//println("")
+
+println("[solution] the grand total to the individual problems is {result}")
