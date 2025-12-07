@@ -1,0 +1,69 @@
+// read the input file into the buffer
+list[char] buffer
+read_file("2025/07/input_files/input", buffer)
+//read_file("2025/07/input_files/test1", buffer)
+
+// print the content to console
+u64 buffer_size = buffer.size()
+println("stuff in the input file (size: {buffer_size})")
+//for u64 index = 0; index < buffer_size; index++:
+//    print(buffer.get(index))
+
+// count the rows and columns, and create a list of values without newline
+u8 rows = 0
+u8 cols = 0
+bool run = true
+for u64 index = 0; run; index++:
+    if buffer.get(index) == (char)0xa:  // '\n'
+        run = false
+        cols = (u8)(index)
+        rows = (u8)(buffer_size / (index+1))
+list[char] manifold
+for u8 row = 0; row < rows; row++:
+    for u8 col = 0; col < cols; col++:
+        manifold.add(buffer.get(row*(cols+1)+col))
+println("rows: {rows}, cols: {cols}")
+
+// print the input
+//for u8 row = 0; row < rows; row++:
+//    for u8 col = 0; col < cols; col++:
+//        print(manifold.get(row*cols + col))
+//    println("")
+
+// process the tachyon manifold row for row, and calculate the number of beam splits
+u32 beam_splits = 0
+for u8 row = 0; row < rows - 1; row++:
+    for u8 col = 0; col < cols; col++:
+        char current = manifold.get(row*cols + col)
+        char below = manifold.get(row*(cols)+cols + col)
+
+        // based on the character, process it differently
+        if current == 'S':
+            // this is the start, create a tachyon beam below
+            manifold.del(row*(cols)+cols + col)
+            manifold.insert(row*(cols)+cols + col, '|')
+
+        else if current == '|':
+            // check if there is a splitter underneath
+            if below == '^':
+                beam_splits++
+                // create two tachyon beams besides the splitter
+                manifold.del(row*(cols)+cols + col-1)
+                manifold.insert(row*(cols)+cols + col-1, '|')
+                manifold.del(row*(cols)+cols + col+1)
+                manifold.insert(row*(cols)+cols + col+1, '|')
+            else:
+                // create a single tachyon beam below
+                manifold.del(row*(cols)+cols + col)
+                manifold.insert(row*(cols)+cols + col, '|')
+
+
+// print the resulting tachyon manifold
+println("processed tachyon manifold")
+for u8 row = 0; row < rows; row++:
+    for u8 col = 0; col < cols; col++:
+        char c = manifold.get(row*cols + col)
+        //print(c)
+    //println("")
+
+println("[solution] the number of beam splits in the tachyon manifold is: {beam_splits}")

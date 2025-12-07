@@ -1,0 +1,98 @@
+// read the input file into the buffer
+list[char] buffer
+read_file("2025/07/input_files/input", buffer)
+//read_file("2025/07/input_files/test1", buffer)
+
+// print the content to console
+u64 buffer_size = buffer.size()
+println("stuff in the input file (size: {buffer_size})")
+//for u64 index = 0; index < buffer_size; index++:
+//    print(buffer.get(index))
+
+// count the rows and columns, and convert the manifold to numeric and without newlines
+s64 START = -1
+s64 SPLITTER = -2
+u64 rows = 0
+u64 cols = 0
+bool run = true
+for u64 index = 0; run; index++:
+    if buffer.get(index) == (char)0xa:  // '\n'
+        run = false
+        cols = (u64)index
+        rows = buffer_size / (index+1)
+list[s64] manifold
+for u64 row = 0; row < rows; row++:
+    for u64 col = 0; col < cols; col++:
+        u64 index = (row*(cols+1)+col)
+        char c = buffer.get(index)
+        // replace the values with the constants, or zero when there is nothing
+        if c == 'S':
+            manifold.add(START)
+        else if c == '^':
+            manifold.add(SPLITTER)
+        else:
+            manifold.add(0)
+println("rows: {rows}, cols: {cols}")
+
+// print the input
+//for u64 row = 0; row < rows; row++:
+//    for u64 col = 0; col < cols; col++:
+//        print(manifold.get(row*cols + col))
+//    println("")
+
+// process the tachyon manifold row for row, and calculate the number of beam beams at a location
+u32 beam_splits = 0
+for u64 row = 0; row < rows - 1; row++:
+    for u64 col = 0; col < cols; col++:
+        u64 current_index = (row*cols + col)
+        u64 below_index = (row*(cols)+cols + col)
+        s64 current = manifold.get(current_index)
+        s64 below = manifold.get(below_index)
+
+        // based on the character, process it differently
+        if current == START:
+            // this is the start, add a tachyon beam below
+            s64 current_beams = manifold.get(below_index)
+            manifold.del(below_index)
+            manifold.insert(below_index, current_beams+1)
+
+        else if current > 0:
+            // check if there is a splitter underneath
+            if below == SPLITTER:
+                // add two current tachyon beams besides the splitter
+                s64 current_beams_left = manifold.get(below_index-1)
+                manifold.del(below_index-1)
+                manifold.insert(below_index-1, current_beams_left+current)
+                s64 current_beams_right = manifold.get(below_index+1)
+                manifold.del(below_index+1)
+                manifold.insert(below_index+1, current_beams_right+current)
+            else:
+                // add current tachyon beams below
+                s64 current_beams = manifold.get(below_index)
+                manifold.del(below_index)
+                manifold.insert(below_index, current_beams+current)
+
+
+// print the resulting tachyon manifold
+//println("processed tachyon manifold")
+//for u64 row = 0; row < rows; row++:
+//    for u64 col = 0; col < cols; col++:
+//        s64 c = manifold.get(row*cols + col)
+//        if c == START:
+//            print('S')
+//        else if c == SPLITTER:
+//            print('^')
+//        else:
+//            print(c)
+//        print(' ')
+//    println("")
+
+// count the active beams of the last row
+s64 active_beams = 0
+for u64 row = rows-1; row < rows; row++:
+    for u64 col = 0; col < cols; col++:
+        s64 beams = manifold.get(row*cols + col)
+        if beams > 0:
+            active_beams = active_beams + beams
+
+println("[solution] the number of timelines of a single tachyon particle is: {active_beams}")
