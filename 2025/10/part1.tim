@@ -1,0 +1,137 @@
+// read the input file into the buffer
+list[char] buffer
+read_file("2025/10/input_files/input", buffer)
+//read_file("2025/10/input_files/test1", buffer)
+
+// print the content to console
+u64 buffer_size = buffer.size()
+println("stuff in the input file (size: {buffer_size})")
+for u64 index = 0; index < buffer_size; index++:
+    print(buffer.get(index))
+
+bool is_int(char c):
+    return (bool)(c >= '0' && c <= '9')
+
+u64 get_int(char c):
+    return (u64)(c - '0')
+
+void process_line(list[u64] result, list[bool] indicators_goal, list[bool] indicators, list[u64] indicator_list, list[u64] button_offset, list[u64] button_num_indicators, u64 index, u64 presses):
+    // check that the indicators are equal to the goal, then add a result and return
+    bool equal = true
+    for u64 i = 0; i < indicators_goal.size(); i++:
+        if indicators_goal.get(i) != indicators.get(i):
+            equal = false
+    if equal:
+        result.add(presses)
+        println("add a result with {presses} presses")
+        return
+    
+    // stop if we recursed too far
+    if index >= button_offset.size():
+        return
+    
+    // perform a run with pressing the button
+    u64 offset = button_offset.get(index)
+    u64 num_indicators = button_num_indicators.get(index)
+    // create a copy of the indicators before modifying
+    list[bool] indicators_copy
+    for u64 index = 0; index < indicators.size(); index++:
+        indicators_copy.add(indicators.get(index))
+    // perform the button press indicator switches
+    for u64 index = offset; index < offset + num_indicators; index++:
+        // get the indicator number to flip
+        u64 indicator = indicator_list.get(index)
+        // flip the indicator
+        bool indicator_value = indicators_copy.get(indicator)
+        indicators_copy.del(indicator)
+        indicators_copy.insert(indicator, !indicator_value)
+    // recurse an index further into the buttons list
+    process_line(result, indicators_goal, indicators_copy, indicator_list, button_offset, button_num_indicators, index+1, presses+1)
+
+    // also perform a run without pressing the button
+    process_line(result, indicators_goal, indicators, indicator_list, button_offset, button_num_indicators, index+1, presses)
+
+// parse the input, and process it line for line
+u64 index = 0
+u64 button_presses = 0
+while index < buffer.size():
+    char c = (char)0
+
+    // start with the indicators between brackets
+    list[bool] indicators_goal
+    index++
+    c = buffer.get(index)
+    while c != ']':
+        // process the current char
+        if c == '#':
+            indicators_goal.add(true)
+        else:
+            indicators_goal.add(false)
+        // increment index, and get the next char
+        index++
+        c = buffer.get(index)
+    // consume the space and opening parenthesis
+    index = index + 2
+    for u64 i = 0; i < indicators_goal.size(); i++:
+        print(indicators_goal.get(i))
+    println("")
+
+    // get buttons until we get an opening brace
+    list[u64] indicator_list
+    list[u64] button_offset
+    list[u64] button_num_indicators
+    c = buffer.get(index)
+    while c != '{':
+        // consume the opening parenthesis
+        index++
+        button_offset.add(indicator_list.size())
+        u64 value = 0
+        c = buffer.get(index)
+        while c != ')':
+            // check if it's an int, then add to the value
+            if is_int(c):
+                value = value * 10
+                value = value + get_int(c)
+            else:
+                // otherwise add value to the indicator list and reset
+                indicator_list.add(value)
+                value = 0
+            index++
+            c = buffer.get(index)
+        // add the last value
+        indicator_list.add(value)
+        // add the number of indicators for the button
+        u64 start_index = button_offset.get(button_offset.size()-1)
+        u64 num_indicators = indicator_list.size() - start_index
+        button_num_indicators.add(num_indicators)
+        println("found button starting at {start_index} with {num_indicators} indicators")
+        // consume the space and opening parenthesis
+        index = index + 2
+        c = buffer.get(index)
+    // consume everything until the newline
+    while c != (char)0xa:
+        index++
+        c = buffer.get(index)
+    index++
+
+    // process the line
+    list[u64] result
+    list[bool] indicators  // initial empty list of indicators
+    for u64 index = 0; index < indicators_goal.size(); index++:
+        indicators.add(false)
+    process_line(result, indicators_goal, indicators, indicator_list, button_offset, button_num_indicators, 0, 0)
+
+    // print the result
+    if result.size() > 0:
+        u64 lowest_result = result.get(0)
+        for u64 index = 1; index < result.size(); index++:
+            u64 value = result.get(index)
+            if value < lowest_result:
+                lowest_result = value
+        println("lowest_result: {lowest_result}")
+        button_presses = button_presses + lowest_result
+    else:
+        while true:
+            println("no result found!")
+
+println("[solution] fewest button presses to configure the indicators: {button_presses}")

@@ -1,0 +1,147 @@
+// read the input file into the buffer
+list[char] buffer
+//read_file("2025/10/input_files/input", buffer)
+read_file("2025/10/input_files/test1", buffer)
+
+// print the content to console
+u64 buffer_size = buffer.size()
+println("stuff in the input file (size: {buffer_size})")
+for u64 index = 0; index < buffer_size; index++:
+    print(buffer.get(index))
+
+bool is_int(char c):
+    return (bool)(c >= '0' && c <= '9')
+
+u64 get_int(char c):
+    return (u64)(c - '0')
+
+void process_line(list[u64] result, list[u64] joltage_goal, list[u64] joltage, list[u64] indicator_list, list[u64] button_offset, list[u64] button_num_indicators, u64 index, u64 presses):
+    // check that the joltage are equal to the goal, then add a result and return
+    bool equal = true
+    for u64 i = 0; i < joltage_goal.size(); i++:
+        if joltage_goal.get(i) != joltage.get(i):
+            equal = false
+        // also return if any joltage is higher than the goal
+        if joltage_goal.get(i) < joltage.get(i):
+            return
+    if equal:
+        result.add(presses)
+        println("add a result with {presses} presses")
+        return
+
+    // stop if we recursed too far
+    if index >= button_offset.size():
+        return
+    
+    // perform a run with pressing the button
+    u64 offset = button_offset.get(index)
+    u64 num_indicators = button_num_indicators.get(index)
+    // create a copy of the joltage before modifying
+    list[u64] joltage_copy
+    for u64 index = 0; index < joltage.size(); index++:
+        joltage_copy.add(joltage.get(index))
+    // perform the button press indicator switches
+    for u64 index = offset; index < offset + num_indicators; index++:
+        // get the indicator number to flip
+        u64 indicator = indicator_list.get(index)
+        // flip the indicator
+        u64 joltage = joltage_copy.get(indicator)
+        joltage_copy.del(indicator)
+        joltage_copy.insert(indicator, joltage+1)
+    // recurse into the same function to see if we need to press the button again
+    process_line(result, joltage_goal, joltage_copy, indicator_list, button_offset, button_num_indicators, index, presses+1)
+
+    // also perform a run without pressing the button
+    process_line(result, joltage_goal, joltage, indicator_list, button_offset, button_num_indicators, index+1, presses)
+
+// parse the input, and process it line for line
+u64 index = 0
+u64 button_presses = 0
+while index < buffer.size():
+    char c = (char)0
+
+    // start consuming everything until the first parenthesis
+    while c != '(':
+        index++
+        c = buffer.get(index)
+    index++
+
+    // get buttons until we get an opening brace
+    list[u64] indicator_list
+    list[u64] button_offset
+    list[u64] button_num_indicators
+    c = buffer.get(index)
+    while c != '{':
+        // consume the opening parenthesis
+        index++
+        button_offset.add(indicator_list.size())
+        u64 value = 0
+        c = buffer.get(index)
+        while c != ')':
+            // check if it's an int, then add to the value
+            if is_int(c):
+                value = value * 10
+                value = value + get_int(c)
+            else:
+                // otherwise add value to the indicator list and reset
+                indicator_list.add(value)
+                value = 0
+            index++
+            c = buffer.get(index)
+        // add the last value
+        indicator_list.add(value)
+        // add the number of indicators for the button
+        u64 start_index = button_offset.get(button_offset.size()-1)
+        u64 num_indicators = indicator_list.size() - start_index
+        button_num_indicators.add(num_indicators)
+        println("found button starting at {start_index} with {num_indicators} indicators")
+        // consume the space and opening parenthesis
+        index = index + 2
+        c = buffer.get(index)
+    
+    // then consume the joltage list
+    list[u64] joltage_goal
+    index++
+    u64 value = 0
+    c = buffer.get(index)
+    while c != '}':
+        // check if it's an int, then add to the value
+        if is_int(c):
+            value = value * 10
+            value = value + get_int(c)
+        else:
+            // otherwise add value to the joltage goal list and reset
+            joltage_goal.add(value)
+            value = 0
+        index++
+        c = buffer.get(index)
+    // add the last value
+    joltage_goal.add(value)
+    // consume the closing brace and newline
+    index = index + 2
+    c = buffer.get(index)
+    for u64 i = 0; i < joltage_goal.size(); i++:
+        print("{joltage_goal.get(i)} ")
+    println("")
+
+    // process the line
+    list[u64] result
+    list[u64] joltage  // initial empty list of joltage
+    for u64 index = 0; index < joltage_goal.size(); index++:
+        joltage.add(false)
+    process_line(result, joltage_goal, joltage, indicator_list, button_offset, button_num_indicators, 0, 0)
+
+    // print the result
+    if result.size() > 0:
+        u64 lowest_result = result.get(0)
+        for u64 index = 1; index < result.size(); index++:
+            u64 value = result.get(index)
+            if value < lowest_result:
+                lowest_result = value
+        println("lowest_result: {lowest_result}")
+        button_presses = button_presses + lowest_result
+    else:
+        //while true:
+        //    println("no result found!")
+
+println("[solution] fewest button presses to configure the indicators: {button_presses}")
