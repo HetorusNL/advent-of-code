@@ -1,0 +1,79 @@
+// read the input file into the buffer
+list[char] buffer
+read_file("2025/09/input_files/input", buffer)
+//read_file("2025/09/input_files/test1", buffer)
+
+// print the content to console
+u64 buffer_size = buffer.size()
+println("stuff in the input file (size: {buffer_size})")
+for u64 index = 0; index < buffer_size; index++:
+    print(buffer.get(index))
+
+u64 get_int(char c):
+    return (u64)(c - '0')
+
+u64 get_area(u64 x1, u64 y1, u64 x2, u64 y2):
+    // get the length of both edges of the two points of the rectangle
+    s64 dx = (s64)x1 - (s64)x2
+    s64 dy = (s64)y1 - (s64)y2
+
+    // make sure they are positive
+    if dx < 0:
+        dx = -dx
+    if dy < 0:
+        dy = -dy
+
+    // return the area including the points
+    return (u64)((dx+1) * (dy+1))
+
+// store the list of points
+list[u64] px
+list[u64] py
+
+// parse the input into the lists above
+u64 index = 0
+u64 value = 0
+char c = (char)0
+while index < buffer_size:  // TODO: make invalid list operations crash
+    // first match the x coordinate
+    value = 0
+    c = buffer.get(index)
+    while c != ',':
+        value = value * 10
+        value = value + get_int(c)
+        index++
+        c = buffer.get(index)
+    px.add(value)
+    index++
+
+    // next match the y coordinate
+    value = 0
+    c = buffer.get(index)
+    while c != (char)0xa:
+        value = value * 10
+        value = value + get_int(c)
+        index++
+        c = buffer.get(index)
+    py.add(value)
+    index++
+
+// print the input
+u64 num_points = px.size()
+println("size x: {px.size()}, size y: {py.size()}")
+for u64 index = 0; index < num_points; index++:
+    println("{px.get(index)},{py.get(index)}")
+
+// find the largest rectangle in the points
+u64 largest_area = 0
+for u64 index1 = 0; index1 < num_points; index1++:
+    for u64 index2 = index1+1; index2 < num_points; index2++:
+        u64 x1 = px.get(index1)
+        u64 y1 = py.get(index1)
+        u64 x2 = px.get(index2)
+        u64 y2 = py.get(index2)
+        u64 area = get_area(x1, y1, x2, y2)
+        println(area)
+        if area > largest_area:
+            largest_area = area
+
+println("[solution] largest area of any rectangle: {largest_area}")
