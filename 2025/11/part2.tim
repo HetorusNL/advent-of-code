@@ -1,0 +1,226 @@
+// read the input file into the buffer
+list[char] buffer
+read_file("2025/11/input_files/input", buffer)
+//read_file("2025/11/input_files/test2", buffer)
+
+// print the content to console
+u64 buffer_size = buffer.size()
+println("stuff in the input file (size: {buffer_size})")
+for u64 index = 0; index < buffer_size; index++:
+    print(buffer.get(index))
+
+// return a number with the value of the 3 chars as value
+u64 get_val(list[char] buffer, u64 index):
+    u64 value = 0
+    for u64 offset = 0; offset < 3; offset++:
+        value = value * 256  // shift to next byte
+        value = value + (u64)buffer.get(index + offset)
+    return value
+
+// check if the device is in the lut, otherwise add it at the end
+// returns the id, which is simply the index of the device in the list
+u64 device_id(list[u64] lut, u64 device):
+    // loop through the device -> id pairs
+    for u64 index = 0; index < lut.size(); index++:
+        if lut.get(index) == device:
+            return index
+
+    // otherwise add the device to the end
+    lut.add(device)
+    return lut.size() - 1
+
+u64 get_svr_id(list[u64] lut):
+    list[char] svr_list
+    svr_list.add('s')
+    svr_list.add('v')
+    svr_list.add('r')
+    return device_id(lut, get_val(svr_list, 0))
+
+u64 get_dac_id(list[u64] lut):
+    list[char] dac_list
+    dac_list.add('d')
+    dac_list.add('a')
+    dac_list.add('c')
+    return device_id(lut, get_val(dac_list, 0))
+
+u64 get_fft_id(list[u64] lut):
+    list[char] fft_list
+    fft_list.add('f')
+    fft_list.add('f')
+    fft_list.add('t')
+    return device_id(lut, get_val(fft_list, 0))
+
+u64 get_out_id(list[u64] lut):
+    list[char] out_list
+    out_list.add('o')
+    out_list.add('u')
+    out_list.add('t')
+    return device_id(lut, get_val(out_list, 0))
+
+// parse the input into several lists (poor man's hmap / list of classes)
+// create a list with a device to id mapping (index)
+list[u64] lut  // device -> id -> ...
+u64 value = 0
+for u64 index = 0; index < buffer_size;:
+    // get the value
+    value = get_val(buffer, index)
+    // map to device id
+    device_id(lut, value)
+
+    // increment index to see separator
+    index = index + 3
+    char separator = buffer.get(index)
+    if separator == ':':
+        index = index + 2
+    else:  // ' ' and '\n'
+        index++
+
+// print the list of device -> id mapping
+for u64 index = 0; index < lut.size(); index++:
+    println("{lut.get(index)} -> {index}")
+
+u64 num_devices = lut.size()
+list[bool] solved  // id -> bool
+list[u64] connection_offset // id -> u64
+list[u64] num_connections  // id -> u64
+list[u64] paths_to_out  // id -> u64
+list[u64] paths_to_out_dac  // id -> u64
+list[u64] paths_to_out_fft  // id -> u64
+list[u64] paths_to_out_dac_fft  // id -> u64
+// prepopulate the lists with zeros
+for u64 index = 0; index < num_devices; index++:
+    println("populating lut for id {index}")
+    solved.add(false)
+    connection_offset.add(0)
+    num_connections.add(0)
+    paths_to_out.add(0)
+    paths_to_out_dac.add(0)
+    paths_to_out_fft.add(0)
+    paths_to_out_dac_fft.add(0)
+
+// get the list of device connections based on id and with num outputs
+list[u64] connections
+for u64 index = 0; index < buffer_size;:
+    // get the in value
+    value = get_val(buffer, index)
+    // get the device id
+    u64 from_id = device_id(lut, value)
+    println("processing device at from_id: {from_id}")
+
+    // add the connection offset of this device to the list
+    connection_offset.del(from_id)
+    connection_offset.insert(from_id, connections.size())
+    println("connection_offset: {connections.size()} ({connection_offset.get(from_id)})")
+
+    // consume the from_id, ':' and ' '
+    index = index + 5
+
+    // keep consuming a list of connections for this device id
+    bool run = true  // is false when we encounter a '\n'
+    while run:
+        // get the value
+        value = get_val(buffer, index)
+        // get the device id
+        u64 to_id = device_id(lut, value)
+
+        // add the connection to the list
+        connections.add(to_id)
+        println("adding connection to {to_id}")
+
+        // increment index to see next char
+        index = index + 3
+        char c = buffer.get(index)
+        if c == (char)0xa:  // '\n'
+            // newline, add the num_connections to the list for this device
+            num_connections.del(from_id)
+            num_connections.insert(from_id, connections.size() - connection_offset.get(from_id))
+            println("num_connections: {connections.size() - connection_offset.get(from_id)}")
+            run = false
+        index++
+
+// print the connection_offset and num_connections
+for u64 index = 0; index < num_devices; index++:
+    // TODO: below statement gives compyler exception (IndexError)
+    // println("id: {index}, connection_offset: {connection_offset.get(index)}, size: {num_connections.get(index)"})
+    println("id: {index}, connection_offset: {connection_offset.get(index)}, size: {num_connections.get(index)}")
+
+// get the 'svr'-id and 'out'-id
+u64 svr_id = get_svr_id(lut)
+u64 dac_id = get_dac_id(lut)
+u64 fft_id = get_fft_id(lut)
+u64 out_id = get_out_id(lut)
+println("svr_id: {svr_id}, dac_id: {dac_id}, fft_id: {fft_id}, out_id: {out_id}")
+
+// mark all devices going to out as solved, and add paths_to_out
+for u64 index = 0; index < num_devices; index++:
+    if num_connections.get(index) == 1:
+        if connections.get(connection_offset.get(index)) == out_id:
+            println("{index} is finished")
+            solved.del(index)
+            solved.insert(index, true)
+            paths_to_out.del(index)
+            paths_to_out.insert(index, 1)
+
+// the main loop solving the connections
+// loop continuously until svr is solved
+while !solved.get(svr_id):
+    // loop through all devices
+    for u64 index = 0; index < num_devices; index++:
+        // check that this device is not yet solved and can be solved (has connections)
+        if !solved.get(index) && (bool)(num_connections.get(index) > 0):
+            // loop through the connections from this device
+            u64 start_index = connection_offset.get(index)
+            // already store the different solved paths, in case this is solved
+            u64 paths = 0
+            u64 paths_dac = 0
+            u64 paths_fft = 0
+            u64 paths_dac_fft = 0
+            bool is_solved = true
+            for u64 to_index = start_index; to_index < start_index + num_connections.get(index); to_index++:
+                // get the to_device_id from the index
+                u64 to_device_id = connections.get(to_index)
+                // check if it is solved
+                if solved.get(to_device_id):
+                    paths = paths + paths_to_out.get(to_device_id)
+                    paths_dac = paths_dac + paths_to_out_dac.get(to_device_id)
+                    paths_fft = paths_fft + paths_to_out_fft.get(to_device_id)
+                    paths_dac_fft = paths_dac_fft + paths_to_out_dac_fft.get(to_device_id)
+                else:
+                    is_solved = false
+
+            // when all connections are solved, also solve this device id
+            if is_solved:
+                println("{index} is finished")
+                solved.del(index)
+                solved.insert(index, true)
+                paths_to_out.del(index)
+                paths_to_out.insert(index, paths)
+
+                if index == dac_id:
+                    // if this is dac, add the paths also to the dac list
+                    println("{index} is dac, add {paths} to the dac list, {paths_fft} to the dac_fft list")
+                    paths_to_out_dac.del(index)
+                    paths_to_out_dac.insert(index, paths)
+                    paths_to_out_dac_fft.del(index)
+                    paths_to_out_dac_fft.insert(index, paths_fft)
+                else if index == fft_id:
+                    // if this is fft, add the paths also to the fft list
+                    println("{index} is fft, add {paths} to the fft list, {paths_dac} to the dac_fft list")
+                    paths_to_out_fft.del(index)
+                    paths_to_out_fft.insert(index, paths)
+                    paths_to_out_dac_fft.del(index)
+                    paths_to_out_dac_fft.insert(index, paths_dac)
+                else:
+                    // otherwise just copy over the dac, fft and dac_fft lists
+                    paths_to_out_dac.del(index)
+                    paths_to_out_dac.insert(index, paths_dac)
+                    paths_to_out_fft.del(index)
+                    paths_to_out_fft.insert(index, paths_fft)
+                    paths_to_out_dac_fft.del(index)
+                    paths_to_out_dac_fft.insert(index, paths_dac_fft)
+
+println("paths from svr to out: {paths_to_out.get(svr_id)}")
+println("paths from svr via dac to out: {paths_to_out_dac.get(svr_id)}")
+println("paths from svr via fft to out: {paths_to_out_fft.get(svr_id)}")
+
+println("[solution] paths from svr via dac_fft to out: {paths_to_out_dac_fft.get(svr_id)}")
