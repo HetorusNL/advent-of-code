@@ -1,7 +1,7 @@
 // read the input file into the buffer
 list[char] buffer
-//read_file("2025/09/input_files/input", buffer)
-read_file("2025/09/input_files/test1", buffer)
+read_file("2025/09/input_files/input", buffer)
+//read_file("2025/09/input_files/test1", buffer)
 
 // print the content to console
 u64 buffer_size = buffer.size()
@@ -201,9 +201,102 @@ for u64 subindex = 0; subindex < vertical_indexes.size(); subindex++:
     print("i={index} line at x={line_xstart.get(index)},")
     println(" between [{line_ystart.get(index)}, {line_yend.get(index)}]")
 
+bool process_line(list[u64] line_start_list, list[u64] line_intersect_start, list[u64] line_intersect_end, list[u64] indexes, list[u8] line_value, u64 line, u64 ray_min, u64 ray_max, u64 line_min, u64 line_max):
+    // build a list of intersecting lines
+    list[u64] intersecting_line
+    for u64 subindex = 0; subindex < indexes.size(); subindex++:
+        u64 index = indexes.get(subindex)
+        u64 start = line_intersect_start.get(index)
+        u64 end = line_intersect_end.get(index)
+        if start <= line && line <= end:
+            intersecting_line.add(index)
+
+    // loop through the intersecting lines creating enter-exit events
+    list[u64] enter_exit
+    list[bool] enter
+    bool outside = true
+    for u64 subindex = 0; subindex < intersecting_line.size(); subindex++:
+        u64 index = intersecting_line.get(subindex)
+        u64 start = line_intersect_start.get(index)
+        u64 end = line_intersect_end.get(index)
+        u64 line_start = line_start_list.get(index)
+        u8 current_value = line_value.get(index)
+
+        // create a toggle event
+        if start < line && line < end:
+            enter_exit.add(line_start)
+            enter.add(outside)
+            outside = !outside
+
+        // check if we end on the points
+        if start == line || line == end:
+            if outside:
+                // check that the next u64  moves in the same direction
+                // then we enter at this point and don't leave
+                subindex++  // consume the next point
+                u64 next_index = intersecting_line.get(subindex)
+                u8 next_value = line_value.get(next_index)
+                u64 next_line = line_start_list.get(next_index)
+                if current_value == next_value:
+                    // create entry event
+                    enter_exit.add(line_start)
+                    enter.add(true)
+                    outside = false
+                else:
+                    // otherwise we enter at this point and leave at the next
+                    // create entry event
+                    enter_exit.add(line_start)
+                    enter.add(true)
+                    // create exit event
+                    enter_exit.add(next_line)
+                    enter.add(false)
+            else:  // inside
+                // check that the next u64  moves in the same direction
+                // then we're still inside at this point and leave at the next
+                subindex++  // consume the next point
+                u64 next_index = intersecting_line.get(subindex)
+                u8 next_value = line_value.get(next_index)
+                u64 next_line = line_start_list.get(next_index)
+                if current_value == next_value:
+                    // create exit event
+                    enter_exit.add(next_line)
+                    enter.add(false)
+                    outside = true
+                else:
+                    // nothing needs to happen, we're still inside
+
+    // quickly return if the line start value is before the first enter_exit event
+    if line_min < enter_exit.get(0):
+        return true
+
+    u64 enter_exit_index = 0
+    bool inside = false
+    u64 start_pos = enter_exit.get(0)
+    // perform the ray trace with the enter and exit events
+    for u64 current_pos = start_pos; current_pos < line_max; current_pos++:
+        // process enter and exit events
+        if current_pos == enter_exit.get(enter_exit_index):
+            if enter.get(enter_exit_index):
+                // process enter event
+                inside = true
+                enter_exit_index++
+            else:
+                inside = false
+                enter_exit_index++
+            // when we're out of events, we can also return
+            if enter_exit_index == enter_exit.size():
+                return !inside
+
+        // check if we're on the line, but outside
+        if (bool)(line_min <= current_pos) && !inside:
+            return true
+
+    return false
+
 // find the largest rectangle in the points
 u64 largest_area = 0
 for u64 index1 = 0; index1 < num_points; index1++:
+    println("processing start-index: [ {index1+1} / {num_points} ]")
     for u64 index2 = index1+1; index2 < num_points; index2++:
         // extract the line segment x and y values
         u64 x1 = px.get(index1)
@@ -219,393 +312,25 @@ for u64 index1 = 0; index1 < num_points; index1++:
 
         // calculate the area, and don't even process the rectangle if the area is less than largest_area
         u64 area = get_area(x1, y1, x2, y2)
-        if area <= largest_area:
-            println("not processing {area}, since area of {largest_area} is available")
-        else:
-
+        if area > largest_area:
             // only if the whole rectangle is inside, check its area
             bool failure = false
-            bool inside  // reused inside variable
-            bool outside  // reused outside variable
-            u64 enter_exit_index  // reused enter exit index variable
 
-            // check both horizontal lines
-            println("processing horizontal line at {ymin} and {ymax} between [{xmin}, {xmax}]")
-            /////////////////////////////
-            // HORIZONTAL LINE AT YMIN //
-            /////////////////////////////
-            // build a list of intersecting lines
-            list[u64] intersecting_ymin
-            for u64 subindex = 0; subindex < vertical_indexes.size(); subindex++:
-                u64 index = vertical_indexes.get(subindex)
-                u64 start = line_ystart.get(index)
-                u64 end = line_yend.get(index)
-                if start <= ymin && ymin <= end:
-                    intersecting_ymin.add(index)
-            
-            // loop through the intersecting lines creating enter-exit events
-            list[u64] ymin_enter_exit_x
-            list[bool] ymin_enter_x
-            outside = true
-            for u64 subindex = 0; subindex < intersecting_ymin.size(); subindex++:
-                u64 index = intersecting_ymin.get(subindex)
-                u64 start = line_ystart.get(index)
-                u64 end = line_yend.get(index)
-                u64 line_start = line_xstart.get(index)
-                u8 current_value = line_value.get(index)
-                if line_xstart.get(index) != line_xend.get(index):
-                    while true:
-                        println("failure!")
+            if !failure:
+                failure = process_line(line_ystart, line_xstart, line_xend, horizontal_indexes, line_value, xmin, ray_ymin, ray_ymax, ymin, ymax)
 
-                // create a toggle event
-                if start < ymin && ymin < end:
-                    ymin_enter_exit_x.add(line_start)
-                    ymin_enter_x.add(outside)
-                    outside = !outside
+            if !failure:
+                failure = process_line(line_ystart, line_xstart, line_xend, horizontal_indexes, line_value, xmax, ray_ymin, ray_ymax, ymin, ymax)
 
-                // check if we end on the points
-                if start == ymin || ymin == end:
-                    if outside:
-                        // check that the next line moves in the same direction
-                        // then we enter at this point and don't leave
-                        subindex++  // consume the next point
-                        u64 next_index = vertical_indexes.get(subindex)
-                        u8 next_value = line_value.get(next_index)
-                        u64 next_line = line_xstart.get(next_index)
-                        if current_value == next_value:
-                            // create entry event
-                            ymin_enter_exit_x.add(line_start)
-                            ymin_enter_x.add(true)
-                            outside = false
-                        else:
-                            // otherwise we enter at this point and leave at the next
-                            // create entry event
-                            ymin_enter_exit_x.add(line_start)
-                            ymin_enter_x.add(true)
-                            // create exit event
-                            ymin_enter_exit_x.add(next_line)
-                            ymin_enter_x.add(false)
-                    else:  // inside
-                        // check that the next line moves in the same direction
-                        // then we're still inside at this point and leave at the next
-                        subindex++  // consume the next point
-                        u64 next_index = vertical_indexes.get(subindex)
-                        u8 next_value = line_value.get(next_index)
-                        u64 next_line = line_xstart.get(next_index)
-                        if current_value == next_value:
-                            // create exit event
-                            ymin_enter_exit_x.add(next_line)
-                            ymin_enter_x.add(false)
-                            outside = true
-                        else:
-                            // nothing needs to happen, we're still inside
-            
-            // perform the ray trace with the enter and exit events
-            enter_exit_index = 0
-            inside = false
-            for u64 current_x = ray_xmin; !failure && (bool)(current_x < ray_xmax); current_x++:
-                // process enter event
-                if enter_exit_index < ymin_enter_exit_x.size():
-                    if current_x == ymin_enter_exit_x.get(enter_exit_index):
-                        if ymin_enter_x.get(enter_exit_index):
-                            inside = true
-                            enter_exit_index++
-                
-                // check if we're on the line, but outside
-                if (bool)(xmin <= current_x) && (bool)(current_x <= xmax) && !inside:
-                    failure = true
-                    println("failure in YMIN")
+            if !failure:
+                failure = process_line(line_xstart, line_ystart, line_yend, vertical_indexes, line_value, ymin, ray_xmin, ray_xmax, xmin, xmax)
 
-                // process exit event
-                if enter_exit_index < ymin_enter_exit_x.size():
-                    if current_x == ymin_enter_exit_x.get(enter_exit_index):
-                        if !ymin_enter_x.get(enter_exit_index):
-                            inside = false
-                            enter_exit_index++
-
-            /////////////////////////////
-            // HORIZONTAL LINE AT YMAX //
-            /////////////////////////////
-            // build a list of intersecting lines
-            list[u64] intersecting_ymax
-            for u64 subindex = 0; subindex < vertical_indexes.size(); subindex++:
-                u64 index = vertical_indexes.get(subindex)
-                u64 start = line_ystart.get(index)
-                u64 end = line_yend.get(index)
-                if start <= ymax && ymax <= end:
-                    intersecting_ymax.add(index)
-            
-            // loop through the intersecting lines creating enter-exit events
-            list[u64] ymax_enter_exit_x
-            list[bool] ymax_enter_x
-            outside = true
-            for u64 subindex = 0; subindex < intersecting_ymax.size(); subindex++:
-                u64 index = intersecting_ymax.get(subindex)
-                u64 start = line_ystart.get(index)
-                u64 end = line_yend.get(index)
-                u64 line_start = line_xstart.get(index)
-                u8 current_value = line_value.get(index)
-                if line_xstart.get(index) != line_xend.get(index):
-                    while true:
-                        println("failure!")
-
-                // create a toggle event
-                if start < ymax && ymax < end:
-                    ymax_enter_exit_x.add(line_start)
-                    ymax_enter_x.add(outside)
-                    outside = !outside
-
-                // check if we end on the points
-                if start == ymax || ymax == end:
-                    if outside:
-                        // check that the next line moves in the same direction
-                        // then we enter at this point and don't leave
-                        subindex++  // consume the next point
-                        u64 next_index = vertical_indexes.get(subindex)
-                        u8 next_value = line_value.get(next_index)
-                        u64 next_line = line_xstart.get(next_index)
-                        if current_value == next_value:
-                            // create entry event
-                            ymax_enter_exit_x.add(line_start)
-                            ymax_enter_x.add(true)
-                            outside = false
-                        else:
-                            // otherwise we enter at this point and leave at the next
-                            // create entry event
-                            ymax_enter_exit_x.add(line_start)
-                            ymax_enter_x.add(true)
-                            // create exit event
-                            ymax_enter_exit_x.add(next_line)
-                            ymax_enter_x.add(false)
-                    else:  // inside
-                        // check that the next line moves in the same direction
-                        // then we're still inside at this point and leave at the next
-                        subindex++  // consume the next point
-                        u64 next_index = vertical_indexes.get(subindex)
-                        u8 next_value = line_value.get(next_index)
-                        u64 next_line = line_xstart.get(next_index)
-                        if current_value == next_value:
-                            // create exit event
-                            ymax_enter_exit_x.add(next_line)
-                            ymax_enter_x.add(false)
-                            outside = true
-                        else:
-                            // nothing needs to happen, we're still inside
-            
-            // perform the ray trace with the enter and exit events
-            enter_exit_index = 0
-            inside = false
-            for u64 current_x = ray_xmin; !failure && (bool)(current_x < ray_xmax); current_x++:
-                // process enter event
-                if enter_exit_index < ymax_enter_exit_x.size():
-                    if current_x == ymax_enter_exit_x.get(enter_exit_index):
-                        if ymax_enter_x.get(enter_exit_index):
-                            inside = true
-                            enter_exit_index++
-                
-                // check if we're on the line, but outside
-                if (bool)(xmin <= current_x) && (bool)(current_x <= xmax) && !inside:
-                    failure = true
-                    println("failure in YMAX")
-
-                // process exit event
-                if enter_exit_index < ymax_enter_exit_x.size():
-                    if current_x == ymax_enter_exit_x.get(enter_exit_index):
-                        if !ymax_enter_x.get(enter_exit_index):
-                            inside = false
-                            enter_exit_index++
-            
-            // check both vertical lines
-            println("processing vertical line at {xmin} and {xmax} between [{ymin}, {ymax}]")
-            ///////////////////////////
-            // VERTICAL LINE AT XMIN //
-            ///////////////////////////
-            // build a list of intersecting lines
-            list[u64] intersecting_xmin
-            for u64 subindex = 0; subindex < horizontal_indexes.size(); subindex++:
-                u64 index = horizontal_indexes.get(subindex)
-                u64 start = line_xstart.get(index)
-                u64 end = line_xend.get(index)
-                if start <= xmin && xmin <= end:
-                    intersecting_xmin.add(index)
-            
-            // loop through the intersecting lines creating enter-exit events
-            list[u64] xmin_enter_exit_x
-            list[bool] xmin_enter_x
-            outside = true
-            for u64 subindex = 0; subindex < intersecting_xmin.size(); subindex++:
-                u64 index = intersecting_xmin.get(subindex)
-                u64 start = line_xstart.get(index)
-                u64 end = line_xend.get(index)
-                u64 line_start = line_ystart.get(index)
-                if line_ystart.get(index) != line_yend.get(index):
-                    while true:
-                        println("failure!")
-                u8 current_value = line_value.get(index)
-
-                // create a toggle event
-                if start < xmin && xmin < end:
-                    xmin_enter_exit_x.add(line_start)
-                    xmin_enter_x.add(outside)
-                    outside = !outside
-
-                // check if we end on the points
-                if start == xmin || xmin == end:
-                    if outside:
-                        // check that the next line moves in the same direction
-                        // then we enter at this point and don't leave
-                        subindex++  // consume the next point
-                        u64 next_index = horizontal_indexes.get(subindex)
-                        u8 next_value = line_value.get(next_index)
-                        u64 next_line = line_ystart.get(next_index)
-                        if current_value == next_value:
-                            // create entry event
-                            xmin_enter_exit_x.add(line_start)
-                            xmin_enter_x.add(true)
-                            outside = false
-                        else:
-                            // otherwise we enter at this point and leave at the next
-                            // create entry event
-                            xmin_enter_exit_x.add(line_start)
-                            xmin_enter_x.add(true)
-                            // create exit event
-                            xmin_enter_exit_x.add(next_line)
-                            xmin_enter_x.add(false)
-                    else:  // inside
-                        // check that the next line moves in the same direction
-                        // then we're still inside at this point and leave at the next
-                        subindex++  // consume the next point
-                        u64 next_index = horizontal_indexes.get(subindex)
-                        u8 next_value = line_value.get(next_index)
-                        u64 next_line = line_ystart.get(next_index)
-                        if current_value == next_value:
-                            // create exit event
-                            xmin_enter_exit_x.add(next_line)
-                            xmin_enter_x.add(false)
-                            outside = true
-                        else:
-                            // nothing needs to happen, we're still inside
-            
-            // perform the ray trace with the enter and exit events
-            enter_exit_index = 0
-            inside = false
-            for u64 current_y = ray_ymin; !failure && (bool)(current_y < ray_ymax); current_y++:
-                // process enter event
-                if enter_exit_index < xmin_enter_exit_x.size():
-                    if current_y == xmin_enter_exit_x.get(enter_exit_index):
-                        if xmin_enter_x.get(enter_exit_index):
-                            inside = true
-                            enter_exit_index++
-                
-                // check if we're on the line, but outside
-                if (bool)(ymin <= current_y) && (bool)(current_y <= ymax) && !inside:
-                    failure = true
-                    println("failure in XMIN")
-
-                // process exit event
-                if enter_exit_index < xmin_enter_exit_x.size():
-                    if current_y == xmin_enter_exit_x.get(enter_exit_index):
-                        if !xmin_enter_x.get(enter_exit_index):
-                            inside = false
-                            enter_exit_index++
-
-            ///////////////////////////
-            // VERTICAL LINE AT XMAX //
-            ///////////////////////////
-            // build a list of intersecting lines
-            list[u64] intersecting_xmax
-            for u64 subindex = 0; subindex < horizontal_indexes.size(); subindex++:
-                u64 index = horizontal_indexes.get(subindex)
-                u64 start = line_xstart.get(index)
-                u64 end = line_xend.get(index)
-                if start <= xmax && xmax <= end:
-                    intersecting_xmax.add(index)
-            
-            // loop through the intersecting lines creating enter-exit events
-            list[u64] xmax_enter_exit_x
-            list[bool] xmax_enter_x
-            outside = true
-            for u64 subindex = 0; subindex < intersecting_xmax.size(); subindex++:
-                u64 index = intersecting_xmax.get(subindex)
-                u64 start = line_xstart.get(index)
-                u64 end = line_xend.get(index)
-                u64 line_start = line_ystart.get(index)
-                u8 current_value = line_value.get(index)
-                if line_ystart.get(index) != line_yend.get(index):
-                    while true:
-                        println("failure!")
-
-                // create a toggle event
-                if start < xmax && xmax < end:
-                    xmax_enter_exit_x.add(line_start)
-                    xmax_enter_x.add(outside)
-                    outside = !outside
-
-                // check if we end on the points
-                if start == xmax || xmax == end:
-                    if outside:
-                        // check that the next line moves in the same direction
-                        // then we enter at this point and don't leave
-                        subindex++  // consume the next point
-                        u64 next_index = horizontal_indexes.get(subindex)
-                        u8 next_value = line_value.get(next_index)
-                        u64 next_line = line_ystart.get(next_index)
-                        if current_value == next_value:
-                            // create entry event
-                            xmax_enter_exit_x.add(line_start)
-                            xmax_enter_x.add(true)
-                            outside = false
-                        else:
-                            // otherwise we enter at this point and leave at the next
-                            // create entry event
-                            xmax_enter_exit_x.add(line_start)
-                            xmax_enter_x.add(true)
-                            // create exit event
-                            xmax_enter_exit_x.add(next_line)
-                            xmax_enter_x.add(false)
-                    else:  // inside
-                        // check that the next line moves in the same direction
-                        // then we're still inside at this point and leave at the next
-                        subindex++  // consume the next point
-                        u64 next_index = horizontal_indexes.get(subindex)
-                        u8 next_value = line_value.get(next_index)
-                        u64 next_line = line_ystart.get(next_index)
-                        if current_value == next_value:
-                            // create exit event
-                            xmax_enter_exit_x.add(next_line)
-                            xmax_enter_x.add(false)
-                            outside = true
-                        else:
-                            // nothing needs to happen, we're still inside
-            
-            // perform the ray trace with the enter and exit events
-            enter_exit_index = 0
-            inside = false
-            for u64 current_y = ray_ymin; !failure && (bool)(current_y < ray_ymax); current_y++:
-                // process enter event
-                if enter_exit_index < xmax_enter_exit_x.size():
-                    if current_y == xmax_enter_exit_x.get(enter_exit_index):
-                        if xmax_enter_x.get(enter_exit_index):
-                            inside = true
-                            enter_exit_index++
-                
-                // check if we're on the line, but outside
-                if (bool)(ymin <= current_y) && (bool)(current_y <= ymax) && !inside:
-                    failure = true
-                    println("failure in XMIN")
-
-                // process exit event
-                if enter_exit_index < xmax_enter_exit_x.size():
-                    if current_y == xmax_enter_exit_x.get(enter_exit_index):
-                        if !xmax_enter_x.get(enter_exit_index):
-                            inside = false
-                            enter_exit_index++
+            if !failure:
+                failure = process_line(line_xstart, line_ystart, line_yend, vertical_indexes, line_value, ymax, ray_xmin, ray_xmax, xmin, xmax)
 
             if !failure:
                 if area > largest_area:
                     println("largest area: {largest_area} -> {area}")
                     largest_area = area
 
-println("[solution] largest area of any rectangle: {largest_area}")
-
-// 2270812614 too high
+println("[solution] largest area of any rectangle using only red and green tiles: {largest_area}")
