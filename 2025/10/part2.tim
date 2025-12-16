@@ -1,7 +1,8 @@
 // read the input file into the buffer
 list[char] buffer
-//read_file("2025/10/input_files/input", buffer)
-read_file("2025/10/input_files/test1", buffer)
+read_file("2025/10/input_files/input", buffer)
+//read_file("2025/10/input_files/test1", buffer)
+//read_file("2025/10/input_files/test2", buffer)
 
 // print the content to console
 u64 buffer_size = buffer.size()
@@ -15,44 +16,297 @@ bool is_int(char c):
 u64 get_int(char c):
     return (u64)(c - '0')
 
-void process_line(list[u64] result, list[u64] joltage_goal, list[u64] joltage, list[u64] indicator_list, list[u64] button_offset, list[u64] button_num_indicators, u64 index, u64 presses):
-    // check that the joltage are equal to the goal, then add a result and return
-    bool equal = true
-    for u64 i = 0; i < joltage_goal.size(); i++:
-        if joltage_goal.get(i) != joltage.get(i):
-            equal = false
-        // also return if any joltage is higher than the goal
-        if joltage_goal.get(i) < joltage.get(i):
+// matrix will be in the form:
+// s64 rows, s64 cols
+// for row in rows:
+//     for col in cols:
+//         s64 cell
+// columns are: A, B ... n,  V (where V is row value)
+// rows are: 0 ... n
+u64 MATRIX_ROWS = 0
+u64 MATRIX_COLS = 1
+u64 MATRIX_DATA = 2
+
+void matrix_print_char(char c):
+    // print the char aligned to 4 chars wide
+    print("    {c}")
+
+void matrix_print_cell(s64 value):
+    // simple function to print values aligned to 4 chars wide
+    if value <= -100 || value >= 1000:
+        print(" {value}")
+    else if value <= -10 || value >= 100:
+        print("  {value}")
+    else if value <= -1 || value >= 10:
+        print("   {value}")
+    else:
+        print("    {value}")
+
+s64 matrix_del(list[s64] matrix, s64 row, s64 col):
+    s64 cols = matrix.get(1)  // MATRIX_COLS
+    // first get the value
+    s64 value = matrix.get(2 + row * cols + col)  // MATRIX_DATA
+    // then delete the value at the row,col
+    matrix.del(2 + row * cols + col)  // MATRIX_DATA
+    // finally return the already fetched value
+    return value
+
+s64 matrix_get(list[s64] matrix, s64 row, s64 col):
+    s64 cols = matrix.get(1)  // MATRIX_COLS
+    return matrix.get(2 + row * cols + col)  // MATRIX_DATA
+
+void matrix_ins(list[s64] matrix, s64 row, s64 col, s64 value):
+    s64 cols = matrix.get(1)  // MATRIX_COLS
+    matrix.insert(2 + row * cols + col, value)  // MATRIX_DATA
+
+void matrix_set(list[s64] matrix, s64 row, s64 col, s64 value):
+    s64 cols = matrix.get(1)  // MATRIX_COLS
+    matrix.set(2 + row * cols + col, value)  // MATRIX_DATA
+
+void matrix_print(list[s64] matrix):
+    // print the top row with the A ... n, V
+    // start with an empty space for the row index
+    matrix_print_char(' ')
+    for s64 col = 0; col < matrix.get(1) - 1; col++:  // MATRIX_COLS - 1
+        // print the col letter
+        matrix_print_char('A' + (char)col)
+    // end with the V col
+    matrix_print_char('V')
+    println("")
+
+    // print the rows with data
+    s64 rows = matrix.get(0)  // MATRIX_ROWS
+    for s64 row = 0; row < rows; row++:
+        // start with the row index
+        matrix_print_cell(row)
+        // print the row values
+        for s64 col = 0; col < matrix.get(1); col++:  // MATRIX_COLS
+            matrix_print_cell(matrix_get(matrix, row, col))
+        println("")
+
+void matrix_create(list[u64] indicator_list, list[u64] button_offsets, list[u64] button_num_indicators, list[u64] joltage_goal, list[s64] matrix):
+    // get the number of rows and columns of the matrix
+    s64 cols = (s64)(button_offsets.size() + 1)
+    s64 rows = (s64)(joltage_goal.size())
+
+    // create matrix filled with zeros
+    println("creating matrix with rows: {rows}, cols: {cols}")
+    matrix.add(rows)  // at MATRIX_ROWS
+    matrix.add(cols)  // at MATRIX_COLS
+    for u64 row = 0; row < (u64)rows; row++:
+        for u64 col = 0; col < (u64)cols; col++:
+            matrix.add(0)  // at MATRIX_DATA and further
+
+    // add the joltage goal values to the V column
+    for u64 index = 0; index < joltage_goal.size(); index++:
+        s64 joltage = (s64)(joltage_goal.get(index))
+        matrix_set(matrix, (s64)index, cols-1, joltage)
+
+    // add the coefficient values to the matrix
+    for s64 col = 0; col < cols-1; col++:
+        // get the start offset in the indicator list for the current button
+        u64 offset = button_offsets.get(col)
+        // loop through all indicators in the list
+        for u64 index = 0; index < button_num_indicators.get(col); index++:
+            u64 indicator = indicator_list.get(offset + index)
+            // set the indicator in the matrix to '1'
+            s64 row = (s64)(indicator)
+            matrix_set(matrix, row, col, 1)
+
+void matrix_move_row(list[s64] matrix, s64 row_index_from, s64 row_index_to):
+    s64 cols = matrix.get(1)  // MATRIX_COLS
+    // move the row from row_index_from to row_index_to, leaving the rest of the matrix in order
+    for s64 index = 0; index < cols; index++:
+        // every operation perform the following:
+        // get the value from the row_index_from last col and
+        // delete the value at the index_form last col position at the same time
+        s64 value = matrix_del(matrix, row_index_from, cols-1)
+        // insert the value in the row_index_to first col position
+        matrix_ins(matrix, row_index_to, 0, value)
+        // the linked-list behavior keeps the rest of the matrix in correct order :D
+
+void matrix_make_ref(list[s64] matrix):
+    println("making matrix into REF form")
+    s64 next_row_to_sort = 0
+    s64 rows = matrix.get(0)  // MATRIX_ROWS
+    s64 cols = matrix.get(1)  // MATRIX_COLS
+    // sort the matrix based on first non-zero value in the row
+    for s64 col = 0; col < cols; col++:
+        for s64 row = next_row_to_sort; row < rows; row++:
+            // check if this row in this col has a non-zero cell value
+            s64 value = matrix_get(matrix, row, col)
+            if value != 0:
+                // this row is correct, if it is the next row to be sorted, it's in the correct place
+                if row == next_row_to_sort:
+                    // nothing to be done here, this row is already sorted
+                    // increment the next_row_to_sort
+                    next_row_to_sort++
+                else:
+                    // this row should be in front, swap with next_row_to_sort
+                    // swap this row with next_row_to_sort
+                    println("moving matrix row {row} to {next_row_to_sort}")
+                    matrix_move_row(matrix, row, next_row_to_sort)
+                    // increment the next_row_to_sort
+                    next_row_to_sort++
+        if next_row_to_sort == rows:
+            // we're fully sorted, return
             return
-    if equal:
-        result.add(presses)
-        println("add a result with {presses} presses")
-        return
 
-    // stop if we recursed too far
-    if index >= button_offset.size():
-        return
-    
-    // perform a run with pressing the button
-    u64 offset = button_offset.get(index)
-    u64 num_indicators = button_num_indicators.get(index)
-    // create a copy of the joltage before modifying
-    list[u64] joltage_copy
-    for u64 index = 0; index < joltage.size(); index++:
-        joltage_copy.add(joltage.get(index))
-    // perform the button press indicator switches
-    for u64 index = offset; index < offset + num_indicators; index++:
-        // get the indicator number to flip
-        u64 indicator = indicator_list.get(index)
-        // flip the indicator
-        u64 joltage = joltage_copy.get(indicator)
-        joltage_copy.del(indicator)
-        joltage_copy.insert(indicator, joltage+1)
-    // recurse into the same function to see if we need to press the button again
-    process_line(result, joltage_goal, joltage_copy, indicator_list, button_offset, button_num_indicators, index, presses+1)
+void matrix_row_subtract(list[s64] matrix, s64 target_row, s64 row_to_subtract, s64 value, s64 pivot_value):
+    s64 cols = matrix.get(1)  // MATRIX_COLS
+    for s64 col = 0; col < cols; col++:
+        // get the value from the target row and row to subtract
+        s64 target_value = matrix_get(matrix, target_row, col)
+        s64 subtract_value = matrix_get(matrix, row_to_subtract, col)
+        // write the value back to the target row
+        matrix_set(matrix, target_row, col, target_value * pivot_value - subtract_value * value)
 
-    // also perform a run without pressing the button
-    process_line(result, joltage_goal, joltage, indicator_list, button_offset, button_num_indicators, index+1, presses)
+bool matrix_gaussian_elimination(list[s64] matrix):
+    println("performing gaussian elimination")
+    bool subtraction_performed = false
+    s64 start_row = 0
+    s64 rows = matrix.get(0)  // MATRIX_ROWS
+    s64 cols = matrix.get(1)  // MATRIX_COLS
+    for s64 col = 0; col < cols; col++:
+        s64 until_row_processed = start_row
+
+        // if this col has a non-zero pivot, reduce all rows below
+        s64 pivot_value = matrix_get(matrix, start_row, col)
+        if pivot_value != 0:
+            for s64 row = start_row + 1; row < rows; row++:
+                until_row_processed = row
+                s64 value = matrix_get(matrix, row, col)
+                if value == 0:
+                    // no more rows to subtract, continue with the next col at this row
+                    start_row = row
+                    row = rows  // terminate the for loop
+                else:
+                    // row is non-zero, perform the subtraction
+                    matrix_row_subtract(matrix, row, start_row, value, pivot_value)
+                    subtraction_performed = true
+            if subtraction_performed:
+                return true
+
+        // if until_row_processed is at the last row, return, as we're finished
+        if until_row_processed == rows-1:
+            return subtraction_performed
+
+    return subtraction_performed
+
+void matrix_get_free_variables(list[s64] matrix, list[u1] is_free_var):
+    // loop through all cols to see which col has a pivot
+    s64 rows = matrix.get(0)  // MATRIX_ROWS
+    s64 cols = matrix.get(1)  // MATRIX_COLS
+    s64 current_row = 0
+    for s64 col = 0; col < cols-1; col++:
+        // if we find a non-zero value, it's a pivot, so no free variable
+        if matrix_get(matrix, current_row, col) != 0:
+            // not a free variable, add that to the list and increment the row
+            is_free_var.add(false)
+            current_row++
+        else:
+            // a free variable, add that to the list, and continue with the current row
+            println("column {'A'+(char)col} is free")
+            is_free_var.add(true)
+
+        // besides looping through all cols, when all rows are finished we're also done
+        if current_row == rows:
+            // if we have any variables left, they are all free
+            while (s64)is_free_var.size() < cols-1:
+                println("column {'A'+(char)is_free_var.size()} is free (out of rows)")
+                is_free_var.add(true)
+            return
+
+u64 get_free_var_index(list[u1] is_free_var, u64 current_free_var):
+    for u64 index = 0; index < is_free_var.size(); index++:
+        if is_free_var.get(index):
+            if current_free_var == 0:
+                return index
+            current_free_var--
+
+    while true:
+        println("free var index not found!")
+
+u64 matrix_get_result(list[s64] matrix, list[s64] var_value):
+    // iterate through the matrix in reverse row order
+    s64 rows = matrix.get(0)  // MATRIX_ROWS
+    s64 cols = matrix.get(1)  // MATRIX_COLS
+    for s64 row = rows-1; row >= 0; row--:
+        // loop through the cols (without col V) until we find a non-zero col
+        for s64 col = 0; col < cols-1; col++:
+            s64 pivot_value = matrix_get(matrix, row, col)
+            if pivot_value != 0:
+                // this is the value we should update in var_value after calculation
+                s64 target_col = col
+
+                // start with the value in col V
+                s64 value = matrix_get(matrix, row, cols-1)
+
+                // for all following non-zero columns, add the col value * var_value to the value for target_col
+                for col = col+1; col < cols-1; col++:
+                    s64 v = matrix_get(matrix, row, col)
+                    value = value - (v * var_value.get(col))
+
+                // finally divide by the pivot value itself
+                if (value / pivot_value) * pivot_value != value:
+                    //println("rounding error between value {value} and pivot_value {pivot_value}!")
+                    return (u64)-1
+                value = value / pivot_value
+
+                // check if value is >= 0, otherwise it's an invalid result
+                if value < 0:
+                    return (u64)-1
+
+                // otherwise update the var_value list with this new value
+                var_value.set(target_col, value)
+
+    // if we get here we have a valid list of var_value numbers
+    // return the sum of the values
+    u64 result = 0
+    for s64 col = 0; col < cols-1; col++:
+        s64 value = var_value.get(col)
+        if value < 0:
+            while true:
+                println("found invalid value!")
+        result = result + (u64)value
+    return result
+
+u64 matrix_iter_free_vars(list[s64] matrix, list[u1] is_free_var, list[s64] var_value, u64 num_free_vars, u64 current_free_var, s64 max_free_var_value, u64 result):
+    // store the entry result
+    u64 result_cache = result
+    u64 result_same = 0
+    // check if we need to fill a free var with all values
+    if current_free_var < num_free_vars:
+        // get the index which we need to sweep
+        u64 free_var_index = get_free_var_index(is_free_var, current_free_var)
+        //println("sweeping free var at {'A' + (char)free_var_index} between 0 and {max_free_var_value}")
+
+        // small trick to see if the result increases if we increase the free_var_value, then stop
+        u64 initial_result = 0
+
+        // sweep the index with the values
+        for s64 free_var_value = 0; free_var_value <= max_free_var_value; free_var_value++:
+            if current_free_var == 0:
+                println("processing free var value: {free_var_value}, result: {result}")
+            var_value.set(free_var_index, free_var_value)
+            // recurse into the function
+            u64 inner_result = matrix_iter_free_vars(matrix, is_free_var, var_value, num_free_vars, current_free_var+1, max_free_var_value, (u64)-1)
+            // very hacky way to estimate we're going in the right direction, do fix
+            if result == result_cache && result != (u64)-1:
+                result_same++
+                if result_same > 5:
+                    return result
+            else:
+                result_cache = inner_result
+                result_same = 0
+            if inner_result < result:
+                result = inner_result
+    else:
+        // all variables are filled, get the result for this current list
+        u64 matrix_result = matrix_get_result(matrix, var_value)
+        if matrix_result < result:
+            result = matrix_result
+    return result
 
 // parse the input, and process it line for line
 u64 index = 0
@@ -64,17 +318,16 @@ while index < buffer.size():
     while c != '(':
         index++
         c = buffer.get(index)
-    index++
 
     // get buttons until we get an opening brace
     list[u64] indicator_list
-    list[u64] button_offset
+    list[u64] button_offsets
     list[u64] button_num_indicators
     c = buffer.get(index)
     while c != '{':
         // consume the opening parenthesis
         index++
-        button_offset.add(indicator_list.size())
+        button_offsets.add(indicator_list.size())
         u64 value = 0
         c = buffer.get(index)
         while c != ')':
@@ -91,14 +344,14 @@ while index < buffer.size():
         // add the last value
         indicator_list.add(value)
         // add the number of indicators for the button
-        u64 start_index = button_offset.get(button_offset.size()-1)
+        u64 start_index = button_offsets.get(button_offsets.size()-1)
         u64 num_indicators = indicator_list.size() - start_index
         button_num_indicators.add(num_indicators)
         println("found button starting at {start_index} with {num_indicators} indicators")
         // consume the space and opening parenthesis
         index = index + 2
         c = buffer.get(index)
-    
+
     // then consume the joltage list
     list[u64] joltage_goal
     index++
@@ -124,24 +377,59 @@ while index < buffer.size():
         print("{joltage_goal.get(i)} ")
     println("")
 
-    // process the line
-    list[u64] result
-    list[u64] joltage  // initial empty list of joltage
+    list[s64] matrix
+
+    // create the matrix from the input
+    matrix_create(indicator_list, button_offsets, button_num_indicators, joltage_goal, matrix)
+    matrix_print(matrix)
+
+    bool performed = true  // the initial value to enter the while loop
+
+    // continuously perform gaussian elimination until it no longer changes the matrix
+    while performed:
+        // make the matrix in Row Echelon Form
+        matrix_make_ref(matrix)
+        matrix_print(matrix)
+
+        // perform gaussian elimination
+        performed = matrix_gaussian_elimination(matrix)
+        println("performed: {performed}")
+        matrix_print(matrix)
+
+    println("we're done! only 'some' calculation remains")
+
+    // get the max joltage for this line to limit the free variables (must be integers >= 0)
+    s64 max_joltage = 0
     for u64 index = 0; index < joltage_goal.size(); index++:
-        joltage.add(false)
-    process_line(result, joltage_goal, joltage, indicator_list, button_offset, button_num_indicators, 0, 0)
+        s64 joltage = (s64)(joltage_goal.get(index))
+        if joltage > max_joltage:
+            max_joltage = joltage
+    println("max value of the free variables is: {max_joltage}")
 
-    // print the result
-    if result.size() > 0:
-        u64 lowest_result = result.get(0)
-        for u64 index = 1; index < result.size(); index++:
-            u64 value = result.get(index)
-            if value < lowest_result:
-                lowest_result = value
-        println("lowest_result: {lowest_result}")
-        button_presses = button_presses + lowest_result
-    else:
-        //while true:
-        //    println("no result found!")
+    // get the list of free variables
+    list[u1] is_free_var
+    matrix_get_free_variables(matrix, is_free_var)
 
-println("[solution] fewest button presses to configure the indicators: {button_presses}")
+    // get the number of free variables
+    u64 num_free_vars = 0
+    for u64 index = 0; index < is_free_var.size(); index++:
+        if is_free_var.get(index):
+            num_free_vars++
+
+    // construct the list of var_values
+    list[s64] var_value
+    s64 cols = matrix.get(1)  // MATRIX_COLS
+    for s64 col = 0; col < cols-1; col++:
+        var_value.add(0)
+
+    // iterate all possible free vars with each possible value to get the lowest result
+    u64 result = matrix_iter_free_vars(matrix, is_free_var, var_value, num_free_vars, 0, max_joltage, (u64)(-1))
+
+    if result == (u64)(-1):
+        println("failure!")
+        while true:
+
+    println("lowest_result: {result}")
+    button_presses = button_presses + result
+
+println("[solution] fewest button presses to configure the joltage level counters: {button_presses}")
