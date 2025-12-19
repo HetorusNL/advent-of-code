@@ -178,4 +178,4 @@ while !stop:
     index_from.del(distance_index)
     index_to.del(distance_index)
 
-println("[solution] the x coordinate of the last to points multiplied togeter: {result}")
+println("[solution] the x coordinate of the last to points multiplied together: {result}")

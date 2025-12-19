@@ -34,6 +34,8 @@ void matrix_print_char(char c):
 void matrix_print_cell(s64 value):
     // simple function to print values aligned to 4 chars wide
     if value <= -100 || value >= 1000:
+        // TODO: fix that this should not compile:
+        //print(" {value: something here}")
         print(" {value}")
     else if value <= -10 || value >= 100:
         print("  {value}")

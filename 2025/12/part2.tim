@@ -1,0 +1,12 @@
+// read the input file into the buffer
+list[char] buffer
+//read_file("2025/12/input_files/input", buffer)
+//read_file("2025/12/input_files/test1", buffer)
+
+// print the content to console
+u64 buffer_size = buffer.size()
+println("stuff in the input file (size: {buffer_size})")
+for u64 index = 0; index < buffer_size; index++:
+    print(buffer.get(index))
+
+println("[solution] You have enough stars to [Finish Decorating the North Pole].")

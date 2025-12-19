@@ -24,14 +24,16 @@ class AoCRunner:
             "Day 06 Part 2: [solution] the grand total to the individual problems is 10153315705125",
             "Day 07 Part 1: [solution] the number of beam splits in the tachyon manifold is: 1579",
             "Day 07 Part 2: [solution] the number of timelines of a single tachyon particle is: 13418215871354",
-            "Day 08 Part 1: [solution] the largest 3 circuit sizes multiplied togeter: 102816",
-            "Day 08 Part 2: [solution] the x coordinate of the last to points multiplied togeter: 100011612",
+            "Day 08 Part 1: [solution] the largest 3 circuit sizes multiplied together: 102816",
+            "Day 08 Part 2: [solution] the x coordinate of the last to points multiplied together: 100011612",
             "Day 09 Part 1: [solution] largest area of any rectangle: 4754955192",
             "Day 09 Part 2: [solution] largest area of any rectangle using only red and green tiles: 1568849600",
             "Day 10 Part 1: [solution] fewest button presses to configure the indicators: 532",
             "Day 10 Part 2: [solution] fewest button presses to configure the joltage level counters: 18387",
             "Day 11 Part 1: [solution] paths from you to out: 423",
             "Day 11 Part 2: [solution] paths from svr via dac_fft to out: 333657640517376",
+            "Day 12 Part 1: [solution] the regions that fit all the listed resents are: 531",
+            "Day 12 Part 2: [solution] You have enough stars to [Finish Decorating the North Pole].",
         ]
         self.run()
 

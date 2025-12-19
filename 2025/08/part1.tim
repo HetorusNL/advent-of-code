@@ -203,4 +203,4 @@ for u64 connections_index = 0; connections_index < NUM_LARGEST_CIRCUITS; connect
     println(value)
     result = result * value
 
-println("[solution] the largest {NUM_LARGEST_CIRCUITS} circuit sizes multiplied togeter: {result}")
+println("[solution] the largest {NUM_LARGEST_CIRCUITS} circuit sizes multiplied together: {result}")
