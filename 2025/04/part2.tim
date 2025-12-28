@@ -128,10 +128,7 @@ while rolls_removed:
                     accessible_rolls = accessible_rolls + 1
                     // TODO: when this is the last line, and closing '"' is missing, results in Python IndexError
                     println("we can access the roll at {row}, {col} -> {accessible_rolls}")
-                    //rolls.set(row * cols + col, 0)  // TODO: implement
-                    u64 index = (u64)(row * cols + col)
-                    rolls.del(index)
-                    rolls.insert(index, 0)
+                    rolls.set(row * cols + col, 0)
                     rolls_removed = 1
 
 println("[solution] accessible rolls: {accessible_rolls}")

@@ -53,24 +53,20 @@ for u64 row = 0; row < rows - 1; row++:
         if current == START:
             // this is the start, add a tachyon beam below
             s64 current_beams = manifold.get(below_index)
-            manifold.del(below_index)
-            manifold.insert(below_index, current_beams+1)
+            manifold.set(below_index, current_beams+1)
 
         else if current > 0:
             // check if there is a splitter underneath
             if below == SPLITTER:
                 // add two current tachyon beams besides the splitter
                 s64 current_beams_left = manifold.get(below_index-1)
-                manifold.del(below_index-1)
-                manifold.insert(below_index-1, current_beams_left+current)
+                manifold.set(below_index-1, current_beams_left+current)
                 s64 current_beams_right = manifold.get(below_index+1)
-                manifold.del(below_index+1)
-                manifold.insert(below_index+1, current_beams_right+current)
+                manifold.set(below_index+1, current_beams_right+current)
             else:
                 // add current tachyon beams below
                 s64 current_beams = manifold.get(below_index)
-                manifold.del(below_index)
-                manifold.insert(below_index, current_beams+current)
+                manifold.set(below_index, current_beams+current)
 
 
 // print the resulting tachyon manifold

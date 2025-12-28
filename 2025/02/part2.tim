@@ -71,14 +71,13 @@ u64 construct(u8 decimals, u8 target_decimals, u64 value_part, u64 min_value, u6
         return value
     return 0
 
-// TODO: fix
-//void add_single_result(list[u64] single_results, u64 value):
-//    // adds a value to the single results, unless it's already in
-//    for u64 index = 0; index < single_results.size(); index++:
-//        if value == single_results.get(index):
-//            return
-//    print("{constructed_value_min},")
-//    single_results.add(value)
+void add_single_result(list[u64] single_results, u64 value):
+    // adds a value to the single results, unless it's already in
+    for u64 index = 0; index < single_results.size(); index++:
+        if value == single_results.get(index):
+            return
+    //print("{value},")
+    single_results.add(value)
 
 list[u64] results
 // loop through all values in the list
@@ -109,30 +108,12 @@ for u64 index = 0; index < min.size(); index++:
             
             if constructed_value_min == constructed_value_max && constructed_value_min:
                 // both are the same, and not 0, add only a single
-                bool add = true
-                for u64 index = 0; index < single_results.size(); index++:
-                    if constructed_value_min == single_results.get(index):
-                        add = false
-                if add:
-                    //print("{constructed_value_min},")
-                    single_results.add(constructed_value_min)
+                add_single_result(single_results, constructed_value_min)
             else:
                 if constructed_value_min:
-                    bool add = true
-                    for u64 index = 0; index < single_results.size(); index++:
-                        if constructed_value_min == single_results.get(index):
-                            add = false
-                    if add:
-                        //print("{constructed_value_min},")
-                        single_results.add(constructed_value_min)
+                    add_single_result(single_results, constructed_value_min)
                 if constructed_value_max:
-                    bool add = true
-                    for u64 index = 0; index < single_results.size(); index++:
-                        if constructed_value_max == single_results.get(index):
-                            add = false
-                    if add:
-                        //print("{constructed_value_max},")
-                        single_results.add(constructed_value_max)
+                    add_single_result(single_results, constructed_value_max)
         //println("")
     // copy all single_results into the results list
     for u64 index = 0; index < single_results.size(); index++:

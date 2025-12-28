@@ -108,8 +108,7 @@ for u64 index = 0; index < buffer_size;:
     println("processing device at from_id: {from_id}")
 
     // add the connection offset of this device to the list
-    connection_offset.del(from_id)
-    connection_offset.insert(from_id, connections.size())
+    connection_offset.set(from_id, connections.size())
     println("connection_offset: {connections.size()} ({connection_offset.get(from_id)})")
 
     // consume the from_id, ':' and ' '
@@ -132,8 +131,7 @@ for u64 index = 0; index < buffer_size;:
         char c = buffer.get(index)
         if c == (char)0xa:  // '\n'
             // newline, add the num_connections to the list for this device
-            num_connections.del(from_id)
-            num_connections.insert(from_id, connections.size() - connection_offset.get(from_id))
+            num_connections.set(from_id, connections.size() - connection_offset.get(from_id))
             println("num_connections: {connections.size() - connection_offset.get(from_id)}")
             run = false
         index++
@@ -156,10 +154,8 @@ for u64 index = 0; index < num_devices; index++:
     if num_connections.get(index) == 1:
         if connections.get(connection_offset.get(index)) == out_id:
             println("{index} is finished")
-            solved.del(index)
-            solved.insert(index, true)
-            paths_to_out.del(index)
-            paths_to_out.insert(index, 1)
+            solved.set(index, true)
+            paths_to_out.set(index, 1)
 
 // the main loop solving the connections
 // loop continuously until svr is solved
@@ -191,33 +187,24 @@ while !solved.get(svr_id):
             // when all connections are solved, also solve this device id
             if is_solved:
                 println("{index} is finished")
-                solved.del(index)
-                solved.insert(index, true)
-                paths_to_out.del(index)
-                paths_to_out.insert(index, paths)
+                solved.set(index, true)
+                paths_to_out.set(index, paths)
 
                 if index == dac_id:
                     // if this is dac, add the paths also to the dac list
                     println("{index} is dac, add {paths} to the dac list, {paths_fft} to the dac_fft list")
-                    paths_to_out_dac.del(index)
-                    paths_to_out_dac.insert(index, paths)
-                    paths_to_out_dac_fft.del(index)
-                    paths_to_out_dac_fft.insert(index, paths_fft)
+                    paths_to_out_dac.set(index, paths)
+                    paths_to_out_dac_fft.set(index, paths_fft)
                 else if index == fft_id:
                     // if this is fft, add the paths also to the fft list
                     println("{index} is fft, add {paths} to the fft list, {paths_dac} to the dac_fft list")
-                    paths_to_out_fft.del(index)
-                    paths_to_out_fft.insert(index, paths)
-                    paths_to_out_dac_fft.del(index)
-                    paths_to_out_dac_fft.insert(index, paths_dac)
+                    paths_to_out_fft.set(index, paths)
+                    paths_to_out_dac_fft.set(index, paths_dac)
                 else:
                     // otherwise just copy over the dac, fft and dac_fft lists
-                    paths_to_out_dac.del(index)
-                    paths_to_out_dac.insert(index, paths_dac)
-                    paths_to_out_fft.del(index)
-                    paths_to_out_fft.insert(index, paths_fft)
-                    paths_to_out_dac_fft.del(index)
-                    paths_to_out_dac_fft.insert(index, paths_dac_fft)
+                    paths_to_out_dac.set(index, paths_dac)
+                    paths_to_out_fft.set(index, paths_fft)
+                    paths_to_out_dac_fft.set(index, paths_dac_fft)
 
 println("paths from svr to out: {paths_to_out.get(svr_id)}")
 println("paths from svr via dac to out: {paths_to_out_dac.get(svr_id)}")

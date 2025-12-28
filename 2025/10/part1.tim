@@ -43,8 +43,7 @@ void process_line(list[u64] result, list[bool] indicators_goal, list[bool] indic
         u64 indicator = indicator_list.get(index)
         // flip the indicator
         bool indicator_value = indicators_copy.get(indicator)
-        indicators_copy.del(indicator)
-        indicators_copy.insert(indicator, !indicator_value)
+        indicators_copy.set(indicator, !indicator_value)
     // recurse an index further into the buttons list
     process_line(result, indicators_goal, indicators_copy, indicator_list, button_offset, button_num_indicators, index+1, presses+1)
 

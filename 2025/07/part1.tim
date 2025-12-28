@@ -40,22 +40,18 @@ for u8 row = 0; row < rows - 1; row++:
         // based on the character, process it differently
         if current == 'S':
             // this is the start, create a tachyon beam below
-            manifold.del(row*(cols)+cols + col)
-            manifold.insert(row*(cols)+cols + col, '|')
+            manifold.set(row*(cols)+cols + col, '|')
 
         else if current == '|':
             // check if there is a splitter underneath
             if below == '^':
                 beam_splits++
                 // create two tachyon beams besides the splitter
-                manifold.del(row*(cols)+cols + col-1)
-                manifold.insert(row*(cols)+cols + col-1, '|')
-                manifold.del(row*(cols)+cols + col+1)
-                manifold.insert(row*(cols)+cols + col+1, '|')
+                manifold.set(row*(cols)+cols + col-1, '|')
+                manifold.set(row*(cols)+cols + col+1, '|')
             else:
                 // create a single tachyon beam below
-                manifold.del(row*(cols)+cols + col)
-                manifold.insert(row*(cols)+cols + col, '|')
+                manifold.set(row*(cols)+cols + col, '|')
 
 
 // print the resulting tachyon manifold

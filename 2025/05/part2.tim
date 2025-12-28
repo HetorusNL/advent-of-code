@@ -98,16 +98,14 @@ for u64 check_index = 0; check_index < min_fresh_ids.size(); check_index++:
                 else if min_value >= dd_min_fresh_value && min_value <= dd_max_fresh_value:
                     // min is inside, update the min to just outside the dd max
                     //println("min inside")
-                    min_to_check.del(min_max_index)
-                    min_to_check.insert(min_max_index, dd_max_fresh_value + 1)
+                    min_to_check.set(min_max_index, dd_max_fresh_value + 1)
                     // restart the checking
                     stop_outer = true
                     stop_inner = true
                 else if max_value >= dd_min_fresh_value && max_value <= dd_max_fresh_value:
                     // max is inside, update the max to just outside the dd min
                     //println("max inside")
-                    max_to_check.del(min_max_index)
-                    max_to_check.insert(min_max_index, dd_min_fresh_value - 1)
+                    max_to_check.set(min_max_index, dd_min_fresh_value - 1)
                     // restart the checking
                     stop_outer = true
                     stop_inner = true

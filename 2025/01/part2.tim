@@ -14,15 +14,14 @@ list[u16] values
 u64 index = 0
 while index < buffer.size():
     // first a rotation
-    rotations.add(buffer.get(index))  // TODO: with this 'rotation', internal compiler error
+    rotations.add(buffer.get(index))
     index++
     // then a value
     u16 value = 0
-    // TODO: &&, make char and base/u16 be used together
+    // TODO: make char and base/u16 be used together
     while (u16)((buffer.get(index) >= '0') + (buffer.get(index) <= '9')) == 2:
         value = value * 10  // TODO: *=
         value = value + (u16)(buffer.get(index) - '0')  // TODO: +=
-        // TODO: line numbers off by one
         index++
     values.add(value)
     // skip the newline

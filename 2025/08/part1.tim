@@ -139,18 +139,14 @@ for u64 distance_index = 0; distance_index < NUM_CONNECTIONS; distance_index++:
     // if both are not connected, add a new circuit with the specified id
     if c1 == -1 && c2 == -1:
         max_circuit_id++
-        circuit.del(p1_index)
-        circuit.insert(p1_index, max_circuit_id)
-        circuit.del(p2_index)
-        circuit.insert(p2_index, max_circuit_id)
+        circuit.set(p1_index, max_circuit_id)
+        circuit.set(p2_index, max_circuit_id)
     else if c1 == -1:
         // only c1 is unconnected, connect to c2
-        circuit.del(p1_index)
-        circuit.insert(p1_index, c2)
+        circuit.set(p1_index, c2)
     else if c2 == -1:
         // only c2 is unconnected, connect to c1
-        circuit.del(p2_index)
-        circuit.insert(p2_index, c1)
+        circuit.set(p2_index, c1)
     else if c1 == c2:
         // nothing to do here, both already connected on same circuit id
     else:
@@ -166,8 +162,7 @@ for u64 distance_index = 0; distance_index < NUM_CONNECTIONS; distance_index++:
         // loop through all circuits, and update highest to lowest
         for u64 circuit_index = 0; circuit_index < num_points; circuit_index++:
             if circuit.get(circuit_index) == highest:
-                circuit.del(circuit_index)
-                circuit.insert(circuit_index, lowest)
+                circuit.set(circuit_index, lowest)
 
     // calculate the connections per circuit
     for s64 circuit_id = 0; circuit_id < max_circuit_id+1; circuit_id++:
