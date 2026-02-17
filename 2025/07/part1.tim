@@ -14,7 +14,7 @@ u8 rows = 0
 u8 cols = 0
 bool run = true
 for u64 index = 0; run; index++:
-    if buffer.get(index) == (char)0xa:  // '\n'
+    if buffer.get(index) == '\n':
         run = false
         cols = (u8)(index)
         rows = (u8)(buffer_size / (index+1))

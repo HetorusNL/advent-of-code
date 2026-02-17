@@ -21,10 +21,10 @@ for u64 index = 0; index < buffer.size(); index++:
     else if c == ',':
         max.add(value)
         value = 0
-    else if c == (char)0xa:  // TODO: '\n'
+    else if c == '\n':
     else:
-        value = value * 10
-        value = value + (u64)(c - '0')
+        value *= 10
+        value += (u64)(c - '0')
 // also add the last one
 max.add(value)
 value = 0
@@ -39,8 +39,8 @@ println("")
 u8 num_decimals(u64 value):
     u8 decimals = 0
     while value > 0:
-        decimals = decimals + 1
-        value = value / 10
+        decimals++
+        value /= 10
     return decimals
 
 bool even(u8 value):
@@ -50,14 +50,14 @@ u64 get_start_value(u8 decimals):
     // get the lowest value with the decimals, e.g. 3 -> 100
     u64 value = 1
     for u8 d = 0; d < decimals-1; d++:
-        value = value * 10
+        value *= 10
     return value
 
 u64 get_end_value(u8 decimals):
     // get the highest value with the decimals, e.g. 3 -> 1000-1 -> 999
     u64 value = 1
     for u8 d = 0; d < decimals; d++:
-        value = value * 10
+        value *= 10
     return value-1
 
 u64 construct(u8 decimals, u8 target_decimals, u64 value_part, u64 min_value, u64 max_value):
@@ -65,8 +65,8 @@ u64 construct(u8 decimals, u8 target_decimals, u64 value_part, u64 min_value, u6
     u8 num_copies = target_decimals / decimals - 1
     u64 value = value_part
     for u8 copy = 0; copy < num_copies; copy++:
-        value = value * mul_factor
-        value = value + value_part
+        value *= mul_factor
+        value += value_part
     if value >= min_value && value <= max_value:
         return value
     return 0
@@ -125,5 +125,5 @@ for u64 index = 0; index < min.size(); index++:
 println("solution size: {results.size()}")
 u64 result = 0
 for u64 index = 0; index < results.size(); index++:
-    result = result + results.get(index)
+    result += results.get(index)
 println("[solution] result: {result}")

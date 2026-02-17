@@ -16,7 +16,7 @@ u64 rows = 0
 u64 cols = 0
 bool run = true
 for u64 index = 0; run; index++:
-    if buffer.get(index) == (char)0xa:  // '\n'
+    if buffer.get(index) == '\n':
         run = false
         cols = (u64)index
         rows = buffer_size / (index+1)
@@ -89,6 +89,6 @@ for u64 row = rows-1; row < rows; row++:
     for u64 col = 0; col < cols; col++:
         s64 beams = manifold.get(row*cols + col)
         if beams > 0:
-            active_beams = active_beams + beams
+            active_beams += beams
 
 println("[solution] the number of timelines of a single tachyon particle is: {active_beams}")

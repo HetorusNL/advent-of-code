@@ -22,7 +22,7 @@ u64 index = 0
 // first parse 6 presents
 for u64 i = 0; i < 6; i++:
     // skip the 'x:\n'
-    index = index + 3
+    index += 3
 
     // parse 3 rows of 3 columns
     for u64 r = 0; r < 3; r++:
@@ -46,7 +46,7 @@ while index < buffer.size():
     c = buffer.get(index)
     while is_int(c):
         value = value * 10
-        value = value + get_int(c)
+        value += get_int(c)
         index++
         c = buffer.get(index)
     index++  // skip the 'x'
@@ -57,10 +57,10 @@ while index < buffer.size():
     c = buffer.get(index)
     while is_int(c):
         value = value * 10
-        value = value + get_int(c)
+        value += get_int(c)
         index++
         c = buffer.get(index)
-    index = index + 2  // skip the ': '
+    index += 2  // skip the ': '
     regions_num_presents.add(value)
 
     // parse the numbers of presents
@@ -69,7 +69,7 @@ while index < buffer.size():
         c = buffer.get(index)
         while is_int(c):
             value = value * 10
-            value = value + get_int(c)
+            value += get_int(c)
             index++
             c = buffer.get(index)
         index++  // skip the space or newline
@@ -102,7 +102,7 @@ list[u64] present_areas
 for u64 present = 0; present < 6; present++:
     u64 present_area = 0
     for u64 pos = 0; pos < 9; pos ++:
-        present_area = present_area + (u64)presents.get(present * 9 + pos)
+        present_area += (u64)presents.get(present * 9 + pos)
     println("present {present} area: {present_area}")
     present_areas.add(present_area)
 
@@ -117,10 +117,9 @@ for u64 line = 0; line < (regions_num_presents.size() / 8); line++:
     u64 required_area = 0
     for u64 present = 0; present < 6; present++:
         u64 present_area = present_areas.get(present) * regions_num_presents.get(line * 8 + 2 + present)
-        required_area = required_area + present_area
+        required_area += present_area
     println("required area: {required_area}")
 
     // if the region_area is large enough for the required_area, it fits!
-    regions_that_fit = regions_that_fit + (u64)(region_area >= required_area)
-
+    regions_that_fit += (u64)(region_area >= required_area)
 println("[solution] the regions that fit all the listed resents are: {regions_that_fit}")

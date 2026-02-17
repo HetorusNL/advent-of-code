@@ -13,7 +13,7 @@ u64 get_int(char c):
     return (u64)(c - '0')
 
 // parse the input
-char NEWLINE = (char)0xa  // '\n'
+char NEWLINE = '\n'
 u64 buffer_size = buffer.size()
 list[u64] min_fresh_ids
 list[u64] max_fresh_ids
@@ -23,8 +23,8 @@ while index < buffer_size:
     // first parse the min_fresh_id
     value = 0
     while buffer.get(index) != '-':
-        value = value * 10
-        value = value + get_int(buffer.get(index))
+        value *= 10
+        value += get_int(buffer.get(index))
         index++
     min_fresh_ids.add(value)
     // consume the '-'
@@ -32,8 +32,8 @@ while index < buffer_size:
     // first parse the max_fresh_id
     value = 0
     while buffer.get(index) != NEWLINE:
-        value = value * 10
-        value = value + get_int(buffer.get(index))
+        value *= 10
+        value += get_int(buffer.get(index))
         index++
     max_fresh_ids.add(value)
     // consume the '\n'
@@ -161,6 +161,6 @@ for u64 index = 0; index < dd_min_fresh.size(); index++:
     u64 max_value = dd_max_fresh.get(index)
     //println("min: {min_value}, max: {max_value}")
     // include both ends of the range in the fresh ingredients
-    fresh_ingredients = fresh_ingredients + (max_value - min_value + 1)
+    fresh_ingredients += (max_value - min_value + 1)
 
 println("[solution] total number of fresh ingredients in the ranges: {fresh_ingredients}")

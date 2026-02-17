@@ -13,7 +13,7 @@ u8 rows = 0
 u8 cols = 0
 bool run = true
 for u64 index = 0; run; index++:
-    if buffer.get(index) == (char)0xa:  // '\n'
+    if buffer.get(index) == '\n':
         run = false
         cols = (u8)(index)
         rows = (u8)(buffer.size() / (index+1))
@@ -41,6 +41,6 @@ for u8 row = 0; row < rows; row++:
                 u8 this_joltage = batteries.get(row*cols + col2)
                 if first_joltage + this_joltage > row_max_joltage:
                     row_max_joltage = first_joltage + this_joltage
-    total_joltage = total_joltage + (u32)row_max_joltage
+    total_joltage += (u32)row_max_joltage
     println(row_max_joltage)
 println("[solution] total joltage: {total_joltage}")

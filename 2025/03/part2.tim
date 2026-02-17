@@ -13,7 +13,7 @@ u8 rows = 0
 u8 cols = 0
 bool run = true
 for u64 index = 0; run; index++:
-    if buffer.get(index) == (char)0xa:  // '\n'
+    if buffer.get(index) == '\n':
         run = false
         cols = (u8)(index)
         rows = (u8)(buffer.size() / (index+1))
@@ -47,8 +47,8 @@ for u8 row = 0; row < rows; row++:
         // update start_col and the row_max_joltage
         start_col = row_highest_joltage_index+1
         row_max_joltage = row_max_joltage * 10
-        row_max_joltage = row_max_joltage + (u64)row_highest_joltage_value
+        row_max_joltage += (u64)row_highest_joltage_value
 
-    total_joltage = total_joltage + (u64)row_max_joltage
+    total_joltage += (u64)row_max_joltage
     println(row_max_joltage)
 println("[solution] total joltage: {total_joltage}")

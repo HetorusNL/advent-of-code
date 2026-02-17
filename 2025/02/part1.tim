@@ -21,11 +21,11 @@ for u64 index = 0; index < buffer.size(); index++:
     else if c == ',':
         max.add(value)
         value = 0
-    else if c == (char)0xa:  // TODO: '\n'
+    else if c == '\n':
         value = value
     else:
-        value = value * 10
-        value = value + (u64)(c - '0')
+        value *= 10
+        value += (u64)(c - '0')
 // also add the last one
 max.add(value)
 value = 0
@@ -40,8 +40,8 @@ println("")
 u8 num_decimals(u64 value):
     u8 decimals = 0
     while value > 0:
-        decimals = decimals + 1
-        value = value / 10
+        decimals++
+        value /= 10
     return decimals
 
 bool even(u8 value):
@@ -51,8 +51,8 @@ u64 duplicate(u64 value):
     u8 decimals = num_decimals(value)
     u64 retval = value
     for u8 dec = 0; dec < decimals; dec++:
-        retval = retval * 10
-    retval = retval + value
+        retval *= 10
+    retval += value
     return retval
 
 list[u64] results
@@ -73,31 +73,31 @@ for u64 index = 0; index < min.size(); index++:
     println("{min_decimals},{max_decimals}, even: {is_even}, low: {lowest_decimals}, high: {highest_decimals}")
     
     // skip processing value when both decimals are even
-    // TODO: add break/continue
     if is_even:
         // get the half value
         u64 min_value = min.get(index)
         u64 max_value = max.get(index)
         u64 start_value = min_value
         for u8 dec = 0; dec < highest_decimals/2; dec++:
-            start_value = start_value / 10
+            start_value /= 10
         println("{min_value} - {max_value}, {start_value}")
 
         // continuously test values until we're outside of the max value
         print("results: ")
-        bool run = true
-        for u64 half_value = start_value; run; half_value++:
+        u64 half_value = start_value
+        while true:
             value = duplicate(half_value)
             if value <= max_value:
                 if value >= min_value:
                     results.add(value)
                     print("{value},")
             else:
-                run = false
+                break
+            half_value++
         println("")
 
 println("solution size: {results.size()}")
 u64 result = 0
 for u64 index = 0; index < results.size(); index++:
-    result = result + results.get(index)
+    result += results.get(index)
 println("[solution] result: {result}")

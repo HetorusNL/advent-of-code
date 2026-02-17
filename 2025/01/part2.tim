@@ -20,8 +20,8 @@ while index < buffer.size():
     u16 value = 0
     // TODO: make char and base/u16 be used together
     while (u16)((buffer.get(index) >= '0') + (buffer.get(index) <= '9')) == 2:
-        value = value * 10  // TODO: *=
-        value = value + (u16)(buffer.get(index) - '0')  // TODO: +=
+        value *= 10
+        value += (u16)(buffer.get(index) - '0')
         index++
     values.add(value)
     // skip the newline
@@ -47,33 +47,33 @@ for u64 index = 0; index < rotations.size(); index++:
     // limit rotation value to +/-100 (this is also a rotation through zero)
     while rotation_value < -99:
         //println("rotation_value = {rotation_value}, < 100")
-        rotation_value = rotation_value + 100
-        zero_rotations = zero_rotations + 1
+        rotation_value += 100
+        zero_rotations++
     while rotation_value > 99:
         //println("rotation_value = {rotation_value}, > 100")
-        rotation_value = rotation_value - 100
-        zero_rotations = zero_rotations + 1
+        rotation_value -= 100
+        zero_rotations++
 
     // apply the rotation
     // add the value
     if rotations.get(index) == 'L':
-        value = value - rotation_value
+        value -= rotation_value
     else:  // 'R'
-        value = value + rotation_value
+        value += rotation_value
 
     // perform modulo 100 (this is also a rotation through zero)
     if value < 0:
         //println("value = {value}, < 100")
-        value = value + 100
+        value += 100
         // don't count from 0 to minus something small a zero_rotations
         if start_value != 0:
-            zero_rotations = zero_rotations + 1
+            zero_rotations++
     else if value > 99:
         //println("value = {value}, > 100")
-        value = value - 100
-        zero_rotations = zero_rotations + 1
+        value -= 100
+        zero_rotations++
     else if value == 0:
-        zero_rotations = zero_rotations + 1
+        zero_rotations++
     
     //println("value after {index} ({values.get(index)}) = {value}, zero_rotations: {zero_rotations}")
     

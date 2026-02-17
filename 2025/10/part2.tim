@@ -247,13 +247,13 @@ u64 matrix_get_result(list[s64] matrix, list[s64] var_value):
                 // for all following non-zero columns, add the col value * var_value to the value for target_col
                 for col = col+1; col < cols-1; col++:
                     s64 v = matrix_get(matrix, row, col)
-                    value = value - (v * var_value.get(col))
+                    value -= (v * var_value.get(col))
 
                 // finally divide by the pivot value itself
                 if (value / pivot_value) * pivot_value != value:
                     //println("rounding error between value {value} and pivot_value {pivot_value}!")
                     return (u64)-1
-                value = value / pivot_value
+                value /= pivot_value
 
                 // check if value is >= 0, otherwise it's an invalid result
                 if value < 0:
@@ -270,7 +270,7 @@ u64 matrix_get_result(list[s64] matrix, list[s64] var_value):
         if value < 0:
             while true:
                 println("found invalid value!")
-        result = result + (u64)value
+        result += (u64)value
     return result
 
 u64 matrix_iter_free_vars(list[s64] matrix, list[u1] is_free_var, list[s64] var_value, u64 num_free_vars, u64 current_free_var, s64 max_free_var_value, u64 result):
@@ -335,8 +335,8 @@ while index < buffer.size():
         while c != ')':
             // check if it's an int, then add to the value
             if is_int(c):
-                value = value * 10
-                value = value + get_int(c)
+                value *= 10
+                value += get_int(c)
             else:
                 // otherwise add value to the indicator list and reset
                 indicator_list.add(value)
@@ -351,7 +351,7 @@ while index < buffer.size():
         button_num_indicators.add(num_indicators)
         println("found button starting at {start_index} with {num_indicators} indicators")
         // consume the space and opening parenthesis
-        index = index + 2
+        index += 2
         c = buffer.get(index)
 
     // then consume the joltage list
@@ -362,8 +362,8 @@ while index < buffer.size():
     while c != '}':
         // check if it's an int, then add to the value
         if is_int(c):
-            value = value * 10
-            value = value + get_int(c)
+            value *= 10
+            value += get_int(c)
         else:
             // otherwise add value to the joltage goal list and reset
             joltage_goal.add(value)
@@ -373,7 +373,7 @@ while index < buffer.size():
     // add the last value
     joltage_goal.add(value)
     // consume the closing brace and newline
-    index = index + 2
+    index += 2
     if index < buffer.size():
         c = buffer.get(index)
     for u64 i = 0; i < joltage_goal.size(); i++:

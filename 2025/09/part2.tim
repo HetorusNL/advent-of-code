@@ -55,8 +55,8 @@ while index < buffer_size:  // TODO: make invalid list operations crash
     value = 0
     c = buffer.get(index)
     while c != ',':
-        value = value * 10
-        value = value + get_int(c)
+        value *= 10
+        value += get_int(c)
         index++
         c = buffer.get(index)
     px.add(value)
@@ -65,9 +65,9 @@ while index < buffer_size:  // TODO: make invalid list operations crash
     // next match the y coordinate
     value = 0
     c = buffer.get(index)
-    while c != (char)0xa:
-        value = value * 10
-        value = value + get_int(c)
+    while c != '\n':
+        value *= 10
+        value += get_int(c)
         index++
         c = buffer.get(index)
     py.add(value)

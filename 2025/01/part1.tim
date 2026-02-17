@@ -20,8 +20,8 @@ while index < buffer.size():
     u16 value = 0
     // TODO: make char and base/u16 be used together
     while (u16)((buffer.get(index) >= '0') + (buffer.get(index) <= '9')) == 2:
-        value = value * 10  // TODO: *=
-        value = value + (u16)(buffer.get(index) - '0')  // TODO: +=
+        value *= 10
+        value += (u16)(buffer.get(index) - '0')
         index++
     values.add(value)
     // skip the newline
@@ -38,20 +38,20 @@ u16 zero_rotations = 0
 for u64 index = 0; index < rotations.size(); index++:
     // add the value
     if rotations.get(index) == 'L':
-        value = value - (s32)values.get(index)
+        value -= (s32)values.get(index)
     else:  // 'R'
-        value = value + (s32)values.get(index)
+        value += (s32)values.get(index)
 
     // perform modulo 100
     while value < 0:
-        value = value + 100
+        value += 100
     while value > 99:
-        value = value - 100
+        value -= 100
     //println("value after {index} = {value}")
 
     // check if it's zero
     if value == 0:
-        zero_rotations = zero_rotations + 1
+        zero_rotations++
     
 // print the result
 println("[solution] the number of rotations that end in zero are: {zero_rotations}")

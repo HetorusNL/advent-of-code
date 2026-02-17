@@ -70,7 +70,7 @@ while index < buffer.size():
         index++
         c = buffer.get(index)
     // consume the space and opening parenthesis
-    index = index + 2
+    index += 2
     for u64 i = 0; i < indicators_goal.size(); i++:
         print(indicators_goal.get(i))
     println("")
@@ -89,8 +89,8 @@ while index < buffer.size():
         while c != ')':
             // check if it's an int, then add to the value
             if is_int(c):
-                value = value * 10
-                value = value + get_int(c)
+                value *= 10
+                value += get_int(c)
             else:
                 // otherwise add value to the indicator list and reset
                 indicator_list.add(value)
@@ -105,10 +105,10 @@ while index < buffer.size():
         button_num_indicators.add(num_indicators)
         println("found button starting at {start_index} with {num_indicators} indicators")
         // consume the space and opening parenthesis
-        index = index + 2
+        index += 2
         c = buffer.get(index)
     // consume everything until the newline
-    while c != (char)0xa:
+    while c != '\n':
         index++
         c = buffer.get(index)
     index++
@@ -128,7 +128,7 @@ while index < buffer.size():
             if value < lowest_result:
                 lowest_result = value
         println("lowest_result: {lowest_result}")
-        button_presses = button_presses + lowest_result
+        button_presses += lowest_result
     else:
         while true:
             println("no result found!")

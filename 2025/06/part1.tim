@@ -9,10 +9,10 @@ println("stuff in the input file (size: {buffer.size()})")
 //    print(buffer.get(index))
 
 bool ignore_char(char c):
-    return (bool)(c == ' ' || c == (char)0xa)
+    return (bool)(c == ' ' || c == '\n')
 
 bool is_operator(char c):
-    return (bool)(c == '*' || c == '+')  // '\n'  # TODO: fix that this returns bool
+    return (bool)(c == '*' || c == '+')  // TODO: fix that this returns bool
 
 u64 get_int(char c):
     return (u64)(c - '0')
@@ -35,8 +35,8 @@ for u64 index = 0; index < buffer.size(); index++:
         operators.add(c)
     else:
         // it's a value, add the value digit
-        value = value * 10
-        value = value + get_int(c)
+        value *= 10
+        value += get_int(c)
 
 u64 num_operations = operators.size()
 u64 values_per_operation = values.size() / num_operations
@@ -70,9 +70,9 @@ for u64 index = 0; index < num_operations; index++:
         // perform the operation
         u64 value = values.get(value_index)
         if operation == '+':
-            result = result + value
+            result += value
         else:  // '*'
-            result = result * value
+            result *= value
 
     // add the result
     results.add(result)
@@ -81,7 +81,7 @@ for u64 index = 0; index < num_operations; index++:
 u64 result = 0
 for u64 index = 0; index < results.size(); index++:
     u64 single_result = results.get(index)
-    result = result + single_result
+    result += single_result
     //print("{single_result} ")
 //println("")
 
