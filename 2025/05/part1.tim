@@ -67,7 +67,7 @@ for u64 index = 0; index < ingredient_ids.size(); index++:
 u64 fresh_ingredients = 0
 for u64 index = 0; index < ingredient_ids.size(); index++:
     bool added = false
-    for u64 fresh_index = 0; fresh_index < ingredient_ids.size(); fresh_index++:
+    for u64 fresh_index = 0; fresh_index < min_fresh_ids.size(); fresh_index++:
         if !added:
             u64 ingredient_id = ingredient_ids.get(index)
             u64 min_fresh_id = min_fresh_ids.get(fresh_index)

@@ -374,7 +374,8 @@ while index < buffer.size():
     joltage_goal.add(value)
     // consume the closing brace and newline
     index = index + 2
-    c = buffer.get(index)
+    if index < buffer.size():
+        c = buffer.get(index)
     for u64 i = 0; i < joltage_goal.size(); i++:
         print("{joltage_goal.get(i)} ")
     println("")
