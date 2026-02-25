@@ -40,7 +40,7 @@ class AoCRunner:
     def run_part(self, day: str, part: int) -> None:
         start: int = time_ns()
         result = subprocess.run(
-            f"uv run -m tapl.src.compilers.compyler {self.YEAR}/{day}/part{part}.tim",
+            f"uv run -m tapl-lang.src.compilers.compyler {self.YEAR}/{day}/part{part}.tim",
             shell=True,
             capture_output=True,
             text=True,
